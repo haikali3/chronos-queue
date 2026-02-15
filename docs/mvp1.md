@@ -16,24 +16,24 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 1: Project Skeleton & Protobuf
 
-1. Initialize Go module (`go mod init github.com/haikaltahar/chronos-queue`)
+<!-- 1. Initialize Go module (`go mod init github.com/haikaltahar/chronos-queue`)
 2. Set up `cmd/producer/main.go`, `cmd/queue/main.go`, `cmd/worker/main.go` as empty entry points
 3. Define protobuf contracts in `proto/`:
    - `common.proto` — shared types: `Job`, `JobStatus` enum (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `RETRYING`, `FAILED`)
    - `producer.proto` — `SubmitJob(JobRequest) → JobResponse`
    - `worker.proto` — `PollJobs(WorkerRequest) → stream Job`, `ReportResult(JobResult) → Ack`
    - `admin.proto` — `ListJobs`, `RetryJob` (stub for now)
-4. Generate Go code from protos
+4. Generate Go code from protos -->
 
 ### Phase 2: Job Domain Model
 
-5. `internal/job/job.go` — Job struct with fields: `ID`, `Type`, `Payload`, `Status`, `RetryCount`, `MaxRetries`, `IdempotencyKey`, `CreatedAt`, `UpdatedAt`
+<!-- 5. `internal/job/job.go` — Job struct with fields: `ID`, `Type`, `Payload`, `Status`, `RetryCount`, `MaxRetries`, `IdempotencyKey`, `CreatedAt`, `UpdatedAt`
 6. `internal/job/status.go` — State machine: valid transitions (`PENDING→IN_PROGRESS`, `IN_PROGRESS→COMPLETED`, `IN_PROGRESS→RETRYING`, `RETRYING→IN_PROGRESS`, `RETRYING→FAILED`)
-7. `internal/job/validator.go` — Validate job payloads (type not empty, max retries >= 0, valid JSON payload)
+7. `internal/job/validator.go` — Validate job payloads (type not empty, max retries >= 0, valid JSON payload) -->
 
 ### Phase 3: PostgreSQL Storage
 
-8. `migrations/001_create_jobs_table.sql` — Create `jobs` table matching the data model
+<!-- 8. `migrations/001_create_jobs_table.sql` — Create `jobs` table matching the data model -->
 9. `internal/storage/repository.go` — Repository interface: `CreateJob`, `GetJob`, `ListPendingJobs`, `ClaimJob`, `UpdateJobStatus`
 10. `internal/storage/postgres/job_repository.go` — PostgreSQL implementation
     - `ClaimJob`: use `SELECT ... FOR UPDATE SKIP LOCKED` to safely claim a pending job
