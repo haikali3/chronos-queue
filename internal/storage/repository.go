@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	CreateJob(ctx context.Context, arg db.CreateJobParams) error
+	CreateJob(ctx context.Context, arg db.CreateJobParams) (db.Job, error)
 	GetJob(ctx context.Context, id string) (db.Job, error)
 	ListPendingJobs(ctx context.Context) ([]db.Job, error)
 	ClaimJob(ctx context.Context) (db.Job, error)
