@@ -7,7 +7,52 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createJob = `-- name: CreateJob :one
+INSERT INTO jobs (
+  id, type, payload, status, max_retries, idempotency_key, created_at, updated_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, now(), now()
+)
+
+RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at
+`
+
+type CreateJobParams struct {
+	ID             string
+	Type           string
+	Payload        []byte
+	Status         string
+	MaxRetries     int32
+	IdempotencyKey pgtype.Text
+}
+
+func (q *Queries) CreateJob(ctx context.Context, arg CreateJobParams) (Job, error) {
+	row := q.db.QueryRow(ctx, createJob,
+		arg.ID,
+		arg.Type,
+		arg.Payload,
+		arg.Status,
+		arg.MaxRetries,
+		arg.IdempotencyKey,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Payload,
+		&i.Status,
+		&i.RetryCount,
+		&i.MaxRetries,
+		&i.IdempotencyKey,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
 
 const getJobs = `-- name: GetJobs :one
 SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at FROM jobs
