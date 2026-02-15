@@ -7,8 +7,11 @@ if ! command -v sqlc &> /dev/null; then
   exit 1
 fi
 
-# Ensure queries directory exists
+# Ensure queries directory and file exist
 mkdir -p db/queries
+if [ ! -f db/queries/query.sql ]; then
+  echo "-- Write your queries here" > db/queries/query.sql
+fi
 
 # Generate Go code from SQL queries
 sqlc generate

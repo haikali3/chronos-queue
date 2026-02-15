@@ -1,0 +1,5 @@
+-- Write your queries here
+-- If you get "no queries contained in paths" error, add at least one query below.
+-- Example:
+-- -- name: GetJob :one
+-- SELECT * FROM jobs WHERE id = $1;
