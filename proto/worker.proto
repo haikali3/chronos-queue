@@ -1,3 +1,40 @@
 syntax = "proto3";
 
 package chronos;
+
+option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
+
+import "common.proto";
+
+// WorkerService allows workers to poll for jobs and report results.
+service WorkerService {
+  // PollJob allows workers to receive jobs matching their capabilities.
+  rpc PollJob(WorkerRequest) returns (stream Job);
+
+  // ReportResult allows workers to report job completion or failure.
+  rpc ReportResult(JobResult) returns (Ack);
+}
+
+// Ack is a simple acknowledgment message for RPC responses.
+message Ack {
+  // success indicates whether the operation was successful.
+  bool success = 1;
+}
+
+// WorkerRequest contains worker capabilities for job polling.
+message WorkerRequest {
+  // worker_id is a unique identifier for the worker instance.
+  string worker_id = 1;
+}
+
+// JobResult represents the outcome of a processed job reported by a worker.
+message JobResult {
+  // job_id is the unique server-assigned identifier of the job.
+  string job_id = 1;
+  // worker_id is the identifier of the worker reporting the result.
+  string worker_id = 2;
+  // success indicates whether the job was completed successfully.
+  bool success = 3;
+  // error_message provides details if the job failed.
+  string error_message = 4;
+}
