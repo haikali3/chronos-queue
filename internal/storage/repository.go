@@ -1,9 +1,14 @@
 package storage
 
+import (
+	"chronos-queue/internal/db"
+	"context"
+)
+
 type Repository interface {
-	CreateJob(job *Job) error
-	GetJob(id int64) (*Job, error)
-	ListPendingJobs(limit int) ([]*Job, error)
-	ClaimJob(workerID string) (*Job, error)
-	UpdateJobStatus(id int64, status JobStatus, retryCount int) error
+	CreateJob(ctx context.Context, arg db.CreateJobParams) error
+	GetJob(ctx context.Context, id string) (db.Job, error)
+	ListPendingJobs(ctx context.Context) ([]db.Job, error)
+	ClaimJob(ctx context.Context) (db.Job, error)
+	UpdateJobStatus(ctx context.Context, arg db.UpdateJobStatusParams) error
 }

@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# This script should be run in the developer runtime: bin/shell bin/lint
+set -euxo
+
+pushd $(dirname "$0")/..
+
+golangci-lint --config .golangci.json run "$@"
