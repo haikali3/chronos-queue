@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package chronos;
+
+option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
+
+import "common.proto";
+
+service ProducerService {
+  rpc SubmitJob(JobRequest) returns (JobResponse);
+}
+
+message JobRequest {
+  string type = 1;
+  bytes payload = 2;
+  int32 max_retries = 3;
+  string idempotency_key = 4;
+}
+
+message JobResponse {
+  string id = 1;
+  JobStatus status = 2;
+}
