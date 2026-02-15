@@ -11,6 +11,35 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const claimJob = `-- name: ClaimJob :one
+UPDATE jobs SET status = 'IN_PROGRESS', updated_at = NOW()
+WHERE id = (
+  SELECT id FROM jobs
+  WHERE status = 'PENDING' OR (status = 'RETRYING' AND next_retry_at <= NOW())
+  ORDER BY created_at ASC
+  LIMIT 1
+  FOR UPDATE SKIP LOCKED
+)
+RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at
+`
+
+func (q *Queries) ClaimJob(ctx context.Context) (Job, error) {
+	row := q.db.QueryRow(ctx, claimJob)
+	var i Job
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Payload,
+		&i.Status,
+		&i.RetryCount,
+		&i.MaxRetries,
+		&i.IdempotencyKey,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createJob = `-- name: CreateJob :one
 INSERT INTO jobs (
   id, type, payload, status, max_retries, idempotency_key, created_at, updated_at

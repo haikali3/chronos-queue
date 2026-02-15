@@ -14,7 +14,7 @@ WHERE id = $1;
 SELECT * FROM jobs
 WHERE status = 'PENDING';
 
--- name: ClaimJob :exec
+-- name: ClaimJob :one
 UPDATE jobs SET status = 'IN_PROGRESS', updated_at = NOW()
 WHERE id = (
   SELECT id FROM jobs
@@ -22,4 +22,5 @@ WHERE id = (
   ORDER BY created_at ASC
   LIMIT 1
   FOR UPDATE SKIP LOCKED
-);
+)
+RETURNING *;
