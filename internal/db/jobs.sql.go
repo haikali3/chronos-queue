@@ -17,7 +17,6 @@ INSERT INTO jobs (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, now(), now()
 )
-
 RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at
 `
 
@@ -54,13 +53,13 @@ func (q *Queries) CreateJob(ctx context.Context, arg CreateJobParams) (Job, erro
 	return i, err
 }
 
-const getJobs = `-- name: GetJobs :one
+const getJob = `-- name: GetJob :one
 SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at FROM jobs
 WHERE id = $1
 `
 
-func (q *Queries) GetJobs(ctx context.Context, id string) (Job, error) {
-	row := q.db.QueryRow(ctx, getJobs, id)
+func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
+	row := q.db.QueryRow(ctx, getJob, id)
 	var i Job
 	err := row.Scan(
 		&i.ID,
@@ -74,4 +73,39 @@ func (q *Queries) GetJobs(ctx context.Context, id string) (Job, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const listPendingJobs = `-- name: ListPendingJobs :many
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, created_at, updated_at FROM jobs
+WHERE status = 'PENDING'
+`
+
+func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
+	rows, err := q.db.Query(ctx, listPendingJobs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Job
+	for rows.Next() {
+		var i Job
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Payload,
+			&i.Status,
+			&i.RetryCount,
+			&i.MaxRetries,
+			&i.IdempotencyKey,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
