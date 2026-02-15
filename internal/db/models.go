@@ -16,6 +16,7 @@ type Job struct {
 	RetryCount     int32
 	MaxRetries     int32
 	IdempotencyKey pgtype.Text
+	NextRetryAt    pgtype.Timestamptz
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
 }

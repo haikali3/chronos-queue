@@ -24,3 +24,8 @@ WHERE id = (
   FOR UPDATE SKIP LOCKED
 )
 RETURNING *;
+
+-- name: UpdateJobStatus :exec
+UPDATE jobs
+SET status = $2, retry_count = $3, next_retry_at = $4, updated_at = NOW()
+WHERE id = $1;
