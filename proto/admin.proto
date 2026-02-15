@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package chronos;
+
+option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
+
+import "common.proto";
+
+// AdminService provides administrative operations for managing jobs in the queue.
+service AdminService {
+  // ListJobs allows administrators to retrieve jobs with optional filtering.
+  rpc ListJobs(ListJobsRequest) returns (ListJobsResponse);
+  // RetryJob allows administrators to trigger an immediate retry of a failed job.
+  rpc RetryJob(RetryJobRequest) returns (RetryJobResponse);
+}
+
+// ListJobsRequest contains optional filters for listing jobs.
+message ListJobsRequest {
+  JobStatus status = 1;
+}
+
+// ListJobsResponse contains the list of matching jobs.
+message ListJobsResponse {
+  repeated Job jobs = 1;
+}
+
+// RetryJobRequest identifies the job to retry.
+message RetryJobRequest {
+  string job_id = 1;
+}
+
+// RetryJobResponse contains the updated job after requeue.
+message RetryJobResponse {
+  Job job = 1;
+}
