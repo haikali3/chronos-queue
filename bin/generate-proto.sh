@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Check for protoc
+if ! command -v protoc &> /dev/null; then
+  echo "Error: protoc is not installed. Run: brew install protobuf"
+  exit 1
+fi
+
 # Install protoc Go plugins if not already installed
 if ! command -v protoc-gen-go &> /dev/null; then
   echo "Installing protoc-gen-go..."
