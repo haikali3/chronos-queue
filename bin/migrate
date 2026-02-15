@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-MIGRATIONS_DIR="migrations"
+MIGRATIONS_DIR="db/migrations"
 DB_URL="${DATABASE_URL:-postgres://postgres:postgres@localhost:5432/chronos?sslmode=disable}"
 
 # Check for goose
@@ -9,6 +9,9 @@ if ! command -v goose &> /dev/null; then
   echo "Installing goose..."
   go install github.com/pressly/goose/v3/cmd/goose@latest
 fi
+
+# Ensure migrations directory exists
+mkdir -p "$MIGRATIONS_DIR"
 
 usage() {
   echo "Usage: ./bin/migrate.sh <command>"
