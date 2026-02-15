@@ -34,10 +34,10 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 ### Phase 3: PostgreSQL Storage
 
 <!-- 8. `migrations/001_create_jobs_table.sql` — Create `jobs` table matching the data model -->
-9. `internal/storage/repository.go` — Repository interface: `CreateJob`, `GetJob`, `ListPendingJobs`, `ClaimJob`, `UpdateJobStatus`
+<!-- 9. `internal/storage/repository.go` — Repository interface: `CreateJob`, `GetJob`, `ListPendingJobs`, `ClaimJob`, `UpdateJobStatus`
 10. `internal/storage/postgres/job_repository.go` — PostgreSQL implementation
     - `ClaimJob`: use `SELECT ... FOR UPDATE SKIP LOCKED` to safely claim a pending job
-    - `UpdateJobStatus`: enforce valid state transitions
+    - `UpdateJobStatus`: enforce valid state transitions -->
 
 ### Phase 4: Configuration
 
