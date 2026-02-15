@@ -5,24 +5,42 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
 
+// JobStatus represents the lifecycle state of a job in the queue.
 enum JobStatus {
+  // Default zero value for unspecified state.
   JOB_STATUS_UNSPECIFIED = 0;
+  // Job is accepted and waiting to be processed.
   JOB_STATUS_PENDING = 1;
+  // Job is currently being processed by a worker.
   JOB_STATUS_IN_PROGRESS = 2;
+  // Job finished successfully.
   JOB_STATUS_COMPLETED = 3;
+  // Job failed and is scheduled for another attempt.
   JOB_STATUS_RETRYING = 4;
+  // Job exhausted retries or failed terminally.
   JOB_STATUS_FAILED = 5;
 }
 
+// Job is the canonical persisted representation of queued work.
 message Job {
+  // id is the unique server-assigned identifier.
   string id = 1;
+  // type is the logical job category consumed by workers.
   string type = 2;
+  // payload is an opaque, producer-defined job body.
   bytes payload = 3;
+  // status is the current lifecycle state.
   JobStatus status = 4;
+  // retry_count tracks how many attempts have been made so far.
   int32 retry_count = 5;
+  // max_retries is the maximum number of retry attempts allowed.
   int32 max_retries = 6;
+  // idempotency_key deduplicates repeated submissions from clients.
   string idempotency_key = 7;
+  // created_at is when the job record was first created.
   google.protobuf.Timestamp created_at = 8;
+  // updated_at is when the job record was last updated.
   google.protobuf.Timestamp updated_at = 9;
+  // next_retry_at is when the next retry is eligible to run.
   google.protobuf.Timestamp next_retry_at = 10;
 }

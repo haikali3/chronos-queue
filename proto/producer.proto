@@ -6,18 +6,28 @@ option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
 
 import "common.proto";
 
+// ProducerService receives new jobs from producers.
 service ProducerService {
+  // SubmitJob validates and enqueues a new job.
   rpc SubmitJob(JobRequest) returns (JobResponse);
 }
 
+// JobRequest contains producer input for a new job.
 message JobRequest {
+  // type is the logical job category consumed by workers.
   string type = 1;
+  // payload is an opaque, producer-defined job body.
   bytes payload = 2;
+  // max_retries is the maximum number of retry attempts allowed.
   int32 max_retries = 3;
+  // idempotency_key deduplicates repeated submissions from clients.
   string idempotency_key = 4;
 }
 
+// JobResponse is returned after a successful submission.
 message JobResponse {
+  // id is the server-assigned job identifier.
   string id = 1;
+  // status is the initial persisted state of the submitted job.
   JobStatus status = 2;
 }
