@@ -1,0 +1,137 @@
+version: "2"
+
+run:
+  go: "1.24.3"
+
+linters:
+  enable:
+    - errcheck
+    - gocritic
+    - gosec
+    - ineffassign
+    - revive
+    - unused
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+    staticcheck:
+      checks:
+        - all
+        - -SA1029
+        - -SA4006
+        - -ST1000
+        - -ST1003
+        - -ST1005
+        - -ST1016
+  exclusions:
+    rules:
+      - path: .*\.gen\.go$
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: .*_gen\.go$
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: .*\.generated\.go$
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: .*\.pb\.go$
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: fakeprovider.go
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: fakegetter.go
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: api/resolvers/generated.go
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - path: api/ent
+        linters:
+          - errcheck
+          - gocritic
+          - gosec
+          - ineffassign
+          - revive
+          - unused
+      - text: "by other packages, and that stutters; consider calling this"
+        linters:
+          - revive
+      - text: "var-naming:"
+        linters:
+          - revive
+      - text: "receiver-naming:"
+        linters:
+          - revive
+      - text: "unexported-return:"
+        linters:
+          - revive
+      - text: "unused-parameter: parameter"
+        linters:
+          - revive
+      - text: "context-keys-type: should not use basic type string"
+        linters:
+          - revive
+      - text: "error strings should not be capitalized"
+        linters:
+          - revive
+      - text: "Implicit memory aliasing in for loop"
+        linters:
+          - gocritic
+      - text: "G115: integer overflow conversion"
+        linters:
+          - gosec
+      - text: "exitAfterDefer: log.Fatal will exit"
+        linters:
+          - gocritic
+      - text: "put a space between `//` and comment text"
+        linters:
+          - revive
+      - text: "G115"
+        linters:
+          - gosec
+
+formatters:
+  settings:
+    goimports:
+      local-prefixes:
+        - kept
