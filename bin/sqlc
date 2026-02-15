@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# Check for sqlc
+if ! command -v sqlc &> /dev/null; then
+  echo "Error: sqlc is not installed. Run: brew install sqlc"
+  exit 1
+fi
+
+# Ensure queries directory exists
+mkdir -p db/queries
+
+# Generate Go code from SQL queries
+sqlc generate
+
+echo "sqlc generation complete. Output in internal/db/"
