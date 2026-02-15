@@ -1,5 +1,28 @@
 syntax = "proto3";
 
-package common;
+package chronos;
+import "google/protobuf/timestamp.proto";
 
-service CommonService {}
+option go_package = "github.com/haikaltahar/chronos-queue/gen/pb";
+
+enum JobStatus {
+  JOB_STATUS_UNSPECIFIED = 0;
+  JOB_STATUS_PENDING = 1;
+  JOB_STATUS_IN_PROGRESS = 2;
+  JOB_STATUS_COMPLETED = 3;
+  JOB_STATUS_RETRYING = 4;
+  JOB_STATUS_FAILED = 5;
+}
+
+message Job {
+  string id = 1;
+  string type = 2;
+  bytes payload = 3;
+  JobStatus status = 4;
+  int32 retry_count = 5;
+  int32 max_retries = 6;
+  string idempotency_key = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp next_retry_at = 10;
+}

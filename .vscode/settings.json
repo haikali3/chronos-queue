@@ -1,0 +1,6 @@
+{
+  "protobuf.externalLinter.enabled": true,
+  "protobuf.externalLinter.linter": "protolint",
+  "protobuf.externalLinter.protolintPath": "/opt/homebrew/bin/protolint",
+  "protobuf.protoc.path": "/opt/homebrew/bin/protoc"
+}
