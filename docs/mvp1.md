@@ -57,12 +57,12 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 7: Single Worker
 
-18. `internal/worker/worker.go` — Simple poll loop:
+<!-- 18. `internal/worker/worker.go` — Simple poll loop:
     - Poll queue service for a job via gRPC
     - Execute job (simulated — sleep + log for now)
     - Report success or failure back
-19. `internal/worker/handler.go` — Job handler interface + a default simulated handler
-20. Wire up in `cmd/worker/main.go`
+19. `internal/worker/handler.go` — Job handler interface + a default simulated handler -->
+<!-- 20. Wire up in `cmd/worker/main.go` -->
 
 ### Phase 8: Basic Retry Logic
 
