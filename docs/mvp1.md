@@ -52,8 +52,8 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 6: Producer Service
 
-16. `cmd/producer/main.go` — gRPC server that accepts `SubmitJob`, validates input, calls Queue Service to enqueue
-17. Keep it thin — validation + forward to queue
+<!-- 16. `cmd/producer/main.go` — gRPC server that accepts `SubmitJob`, validates input, calls Queue Service to enqueue
+17. Keep it thin — validation + forward to queue -->
 
 ### Phase 7: Single Worker
 
