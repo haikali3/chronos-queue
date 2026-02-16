@@ -24,7 +24,7 @@ func Init() {
 	} else {
 		cfg = zap.NewDevelopmentConfig()
 	}
-	log, _ = cfg.Build()
+	log, _ = cfg.Build(zap.AddStacktrace(zap.ErrorLevel))
 	SetLogLevel(os.Getenv("LOG_LEVEL"))
 }
 
