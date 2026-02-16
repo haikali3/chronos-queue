@@ -21,6 +21,10 @@ usage() {
   echo "  queue      (q)"
   echo "  producer   (p)"
   echo "  worker     (w)"
+  echo ""
+  echo "Examples:"
+  echo "  bin/run queue"
+  echo "  bin/run q"
   exit 1
 }
 
