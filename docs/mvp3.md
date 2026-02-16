@@ -66,7 +66,7 @@ Make Chronos-Queue **production-grade**: handle every edge case, secure service 
 14. `internal/auth/mtls.go` — mTLS between services
     - TLS certificate loading
     - Mutual authentication for queue ↔ worker communication
-15. Generate test certs in `scripts/generate-certs.sh`
+15. Generate test certs in `bin/generate-certs`
 16. Rate limiting enforcement via Redis (from MVP 2) with proper error responses
 
 ### Phase 6: Job Execution Timeout
@@ -91,7 +91,7 @@ Make Chronos-Queue **production-grade**: handle every edge case, secure service 
     - Burst: 10,000 jobs in 10 seconds
     - Failure rate: 30% job failure rate, verify retry behavior
     - Worker crash: kill workers during processing, verify recovery
-23. `scripts/load-test.sh` — Orchestrate load tests with reporting
+23. `bin/load-test` — Orchestrate load tests with reporting
 24. Document results: throughput, p50/p95/p99 latency, memory usage, recovery time
 
 ### Phase 9: Deployment
@@ -104,8 +104,8 @@ Make Chronos-Queue **production-grade**: handle every edge case, secure service 
     - Resource limits
     - Proper networking
     - Environment variable management
-29. `scripts/run-local.sh` — One-command local setup
-30. `scripts/migrate.sh` — Run migrations safely
+29. `bin/run-local` — One-command local setup
+30. `bin/migrate` — Run migrations safely
 
 ### Phase 10: Documentation & Interview Prep
 
@@ -141,10 +141,10 @@ deploy/docker/producer.Dockerfile
 deploy/docker/queue.Dockerfile
 deploy/docker/worker.Dockerfile
 docker-compose.yml (updated)
-scripts/generate-certs.sh
-scripts/load-test.sh
-scripts/run-local.sh
-scripts/migrate.sh
+bin/generate-certs
+bin/load-test
+bin/run-local
+bin/migrate
 test/load/k6.js (updated)
 README.md
 ```

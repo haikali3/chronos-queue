@@ -21,7 +21,7 @@ chronos-queue/
 ├── proto/
 ├── migrations/
 ├── deploy/
-├── scripts/
+├── bin/
 ├── test/
 ├── docker-compose.yml
 ├── Makefile
@@ -315,13 +315,17 @@ deploy/
 
 ---
 
-## 6. `scripts/` – Developer Tooling
+## 6. `bin/` – Developer Tooling
 
 ```txt
-scripts/
-├── run-local.sh
-├── migrate.sh
-└── load-test.sh
+bin/
+├── build
+├── generate-proto
+├── go-lint
+├── migrate
+├── run
+├── sqlc
+└── test
 ```
 
 ---
