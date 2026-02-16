@@ -46,9 +46,9 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 5: Queue Service
 
-13. `internal/queue/service.go` — Core queue logic: `Enqueue(job)`, `Dequeue() → job`, `Complete(jobID)`, `Fail(jobID)`
+<!-- 13. `internal/queue/service.go` — Core queue logic: `Enqueue(job)`, `Dequeue() → job`, `Complete(jobID)`, `Fail(jobID)`
 14. `internal/queue/errors.go` — Domain errors: `ErrJobNotFound`, `ErrInvalidTransition`, `ErrDuplicateIdempotencyKey`
-15. Wire up gRPC server in `cmd/queue/main.go` — expose producer and worker RPCs
+15. Wire up gRPC server in `cmd/queue/main.go` — expose producer and worker RPCs -->
 
 ### Phase 6: Producer Service
 
