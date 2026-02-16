@@ -10,7 +10,7 @@ import (
 )
 
 type ProducerHandler struct {
-	pb.UnimplementedAdminServiceServer
+	pb.UnimplementedProducerServiceServer
 	svc *queue.Service // svc = service
 }
 

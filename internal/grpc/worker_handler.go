@@ -16,6 +16,10 @@ type WorkerHandler struct {
 	svc *queue.Service
 }
 
+func NewWorkerHandler(svc *queue.Service) *WorkerHandler {
+	return &WorkerHandler{svc: svc}
+}
+
 func (h *WorkerHandler) PollJob(req *pb.WorkerRequest, stream grpc.ServerStreamingServer[pb.Job]) error {
 	claimed, err := h.svc.Dequeue(stream.Context())
 	if err != nil {
