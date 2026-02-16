@@ -18,9 +18,9 @@ usage() {
   echo "Usage: ./bin/run <service> [args...]"
   echo ""
   echo "Services:"
-  for dir in cmd/*/; do
-    echo "  $(basename "$dir")"
-  done
+  echo "  queue      (q)"
+  echo "  producer   (p)"
+  echo "  worker     (w)"
   exit 1
 }
 
@@ -30,6 +30,13 @@ fi
 
 TARGET="$1"
 shift
+
+# Resolve short aliases
+case "$TARGET" in
+  q) TARGET="queue" ;;
+  p) TARGET="producer" ;;
+  w) TARGET="worker" ;;
+esac
 
 if [ ! -d "./cmd/${TARGET}" ]; then
   echo "Error: unknown service '${TARGET}'"
