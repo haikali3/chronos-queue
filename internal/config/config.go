@@ -25,6 +25,12 @@ func Load() (Config, error) {
 	}
 	cfg.QueueGRPCPort = queuePort
 
+	producerPort, err := getEnvInt("PRODUCER_GRPC_PORT", 50052)
+	if err != nil {
+		return cfg, fmt.Errorf("invalid PRODUCER_GRPC_PORT: %v", err)
+	}
+	cfg.ProducerGRPCPort = producerPort
+
 	pollMs, err := getEnvInt("WORKER_POLL_INTERVAL_MS", 1000)
 	if err != nil {
 		return cfg, fmt.Errorf("invalid WORKER_POLL_INTERVAL_MS: %w", err)
