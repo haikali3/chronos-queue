@@ -24,9 +24,9 @@ func Init() {
 	} else {
 		cfg = zap.NewDevelopmentConfig()
 	}
-	SetLogLevel(os.Getenv("LOG_LEVEL"))
 	cfg.Level = level
 	log, _ = cfg.Build()
+	SetLogLevel(os.Getenv("LOG_LEVEL"))
 }
 
 func SetLogLevel(levelStr string) {
