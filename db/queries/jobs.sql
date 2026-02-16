@@ -29,3 +29,7 @@ RETURNING *;
 UPDATE jobs
 SET status = $2, retry_count = $3, next_retry_at = $4, updated_at = NOW()
 WHERE id = $1;
+
+-- name: GetJobByIdempotencyKey :one
+SELECT id, type, payload, status, retry_count,max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+WHERE idempotency_key = $1;

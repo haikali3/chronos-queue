@@ -107,6 +107,29 @@ func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
 	return i, err
 }
 
+const getJobByIdempotencyKey = `-- name: GetJobByIdempotencyKey :one
+SELECT id, type, payload, status, retry_count,max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+WHERE idempotency_key = $1
+`
+
+func (q *Queries) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey pgtype.Text) (Job, error) {
+	row := q.db.QueryRow(ctx, getJobByIdempotencyKey, idempotencyKey)
+	var i Job
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Payload,
+		&i.Status,
+		&i.RetryCount,
+		&i.MaxRetries,
+		&i.IdempotencyKey,
+		&i.NextRetryAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listPendingJobs = `-- name: ListPendingJobs :many
 SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
 WHERE status = 'PENDING'
