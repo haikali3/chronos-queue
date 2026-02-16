@@ -5,6 +5,7 @@ import (
 	"chronos-queue/internal/job"
 	"chronos-queue/internal/storage"
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -49,8 +50,8 @@ func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, m
 func (s *Service) Dequeue(ctx context.Context) (db.Job, error) {
 	claimed, err := s.repo.ClaimJob(ctx)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			return db.Job{}, nil // No job available, return nil error
+		if errors.Is(err, pgx.ErrNoRows) {
+			return db.Job{}, ErrJobNotFound
 		}
 		s.logger.Error("Failed to dequeue job", zap.Error(err))
 		return db.Job{}, err
@@ -60,7 +61,15 @@ func (s *Service) Dequeue(ctx context.Context) (db.Job, error) {
 }
 
 func (s *Service) Complete(ctx context.Context, jobID string) error {
-	err := s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
+	_, err := s.repo.GetJob(ctx, jobID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrJobNotFound
+		}
+		return err
+	}
+
+	err = s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
 		ID:     jobID,
 		Status: string(job.StatusCompleted),
 	})
@@ -74,21 +83,27 @@ func (s *Service) Complete(ctx context.Context, jobID string) error {
 
 func (s *Service) Fail(ctx context.Context, jobID string) error {
 	current, err := s.repo.GetJob(ctx, jobID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrJobNotFound
+	}
 	if err != nil {
 		s.logger.Error("Failed to get job for failure", zap.String("job_id", jobID), zap.Error(err))
 		return err
 	}
 
 	var newStatus job.JobStatus
+	var retryCount int32
 	if current.RetryCount < current.MaxRetries {
 		newStatus = job.StatusRetrying
+		retryCount = current.RetryCount + 1
 	} else {
 		newStatus = job.StatusFailed
+		retryCount = current.RetryCount
 	}
 	err = s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
 		ID:         jobID,
 		Status:     string(newStatus),
-		RetryCount: current.RetryCount + 1,
+		RetryCount: retryCount,
 	})
 
 	if err != nil {
