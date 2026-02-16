@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+
+pushd "$(dirname "$0")/.." >/dev/null
+
+OUTPUT_DIR="out"
+mkdir -p "$OUTPUT_DIR"
+
+usage() {
+  echo "Usage: ./bin/build [producer|worker|all]"
+  echo ""
+  echo "Commands:"
+  echo "  producer   Build the producer binary"
+  echo "  worker     Build the worker binary"
+  echo "  all        Build all binaries (default)"
+  exit 1
+}
+
+build_binary() {
+  local name="$1"
+  echo "Building ${name}..."
+  go build -o "${OUTPUT_DIR}/${name}" "./cmd/${name}"
+  echo "  -> ${OUTPUT_DIR}/${name}"
+}
+
+TARGET="${1:-all}"
+
+case "$TARGET" in
+  producer)
+    build_binary producer
+    ;;
+  worker)
+    build_binary worker
+    ;;
+  all)
+    build_binary producer
+    build_binary worker
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+echo "Build complete."

@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+pushd "$(dirname "$0")/.." >/dev/null
+
+usage() {
+  echo "Usage: ./bin/run <producer|worker> [args...]"
+  echo ""
+  echo "Commands:"
+  echo "  producer   Run the producer service"
+  echo "  worker     Run the worker service"
+  exit 1
+}
+
+if [ -z "${1:-}" ]; then
+  usage
+fi
+
+TARGET="$1"
+shift
+
+case "$TARGET" in
+  producer|worker)
+    echo "Running ${TARGET}..."
+    go run "./cmd/${TARGET}" "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac

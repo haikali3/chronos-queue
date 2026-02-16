@@ -73,13 +73,13 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 9: Idempotency
 
-25. `internal/job/idempotency.go` — Check idempotency key before creating a job (unique constraint on `idempotency_key` in DB)
-26. Return existing job if duplicate key submitted
+<!-- 25. `internal/job/idempotency.go` — Check idempotency key before creating a job (unique constraint on `idempotency_key` in DB)
+26. Return existing job if duplicate key submitted -->
 
 ### Phase 10: Docker Compose & Integration
 
 27. `docker-compose.yml` — PostgreSQL + all three services
-28. `Makefile` — targets: `proto`, `build`, `run`, `migrate`, `test`
+28. `bin/` scripts — `bin/build`, `bin/run`, `bin/test` (consistent with existing `bin/` pattern)
 29. `test/integration/queue_test.go` — End-to-end test: submit job → verify it gets processed → verify final state
 
 ---
@@ -110,7 +110,9 @@ proto/worker.proto
 proto/admin.proto
 migrations/001_create_jobs_table.sql
 docker-compose.yml
-Makefile
+bin/build
+bin/run
+bin/test
 test/integration/queue_test.go
 ```
 
