@@ -62,6 +62,7 @@ func (w *Worker) poll(ctx context.Context) {
 		}
 		if err != nil {
 			log.Error("stream error", zap.Error(err))
+			return
 		}
 
 		success := true
