@@ -3,6 +3,7 @@ package queue
 import (
 	"chronos-queue/internal/db"
 	"chronos-queue/internal/job"
+	"chronos-queue/internal/retry"
 	"chronos-queue/internal/storage"
 	"context"
 	"errors"
@@ -93,17 +94,22 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 
 	var newStatus job.JobStatus
 	var retryCount int32
+	var nextRetry pgtype.Timestamptz
+
 	if current.RetryCount < current.MaxRetries {
 		newStatus = job.StatusRetrying
 		retryCount = current.RetryCount + 1
-	} else {
-		newStatus = job.StatusFailed
-		retryCount = current.RetryCount
+		nextRetry = pgtype.Timestamptz{
+			Time:  retry.NextRetryAt(retryCount),
+			Valid: true,
+		}
 	}
+
 	err = s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
-		ID:         jobID,
-		Status:     string(newStatus),
-		RetryCount: retryCount,
+		ID:          jobID,
+		Status:      string(newStatus),
+		RetryCount:  retryCount,
+		NextRetryAt: nextRetry,
 	})
 
 	if err != nil {
