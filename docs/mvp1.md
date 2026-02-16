@@ -66,10 +66,10 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 8: Basic Retry Logic
 
-21. `internal/retry/backoff.go` — Exponential backoff: `delay = base * 2^attempt`
+<!-- 21. `internal/retry/backoff.go` — Exponential backoff: `delay = base * 2^attempt`
 22. `internal/retry/policy.go` — Retry policy: check `retry_count < max_retries`, compute next retry delay
 23. Integrate into worker: on failure, update job to `RETRYING` with next retry timestamp
-24. Queue service: only dequeue jobs where `status = PENDING` OR (`status = RETRYING` AND `next_retry_at <= now`)
+24. Queue service: only dequeue jobs where `status = PENDING` OR (`status = RETRYING` AND `next_retry_at <= now`) -->
 
 ### Phase 9: Idempotency
 
