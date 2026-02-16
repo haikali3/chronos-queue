@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to connect to queue service", zap.Error(err))
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	queueClient := pb.NewWorkerServiceClient(conn)
 	handler := &worker.SimulatedHandler{}

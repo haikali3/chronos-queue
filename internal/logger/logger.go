@@ -53,6 +53,6 @@ func Get() *zap.Logger {
 
 func Sync() {
 	if log != nil {
-		log.Sync()
+		_ = log.Sync()
 	}
 }

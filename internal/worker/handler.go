@@ -12,7 +12,7 @@ type JobHandler interface {
 	Handle(ctx context.Context, job *pb.Job) error
 }
 
-// for simulated handler fakes job processing with sleep
+// SimulatedHandler fakes job processing with sleep.
 type SimulatedHandler struct{}
 
 func (h *SimulatedHandler) Handle(ctx context.Context, job *pb.Job) error {
