@@ -41,8 +41,8 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 4: Configuration
 
-11. `internal/config/config.go` — Load config from env vars: DB connection string, gRPC ports, worker poll interval
-12. `internal/config/validation.go` — Validate required config on startup
+<!-- 11. `internal/config/config.go` — Load config from env vars: DB connection string, gRPC ports, worker poll interval
+12. `internal/config/validation.go` — Validate required config on startup -->
 
 ### Phase 5: Queue Service
 
