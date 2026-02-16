@@ -23,6 +23,7 @@ func Init() {
 		cfg.Level = level
 	} else {
 		cfg = zap.NewDevelopmentConfig()
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	}
 	log, _ = cfg.Build(zap.AddStacktrace(zap.ErrorLevel))
 	SetLogLevel(os.Getenv("LOG_LEVEL"))
