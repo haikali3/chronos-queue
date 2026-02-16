@@ -14,7 +14,7 @@ fi
 mkdir -p "$MIGRATIONS_DIR"
 
 usage() {
-  echo "Usage: ./bin/migrate.sh <command>"
+  echo "Usage: ./bin/migrate <command>"
   echo ""
   echo "Commands:"
   echo "  create <name>   Create a new migration (e.g. create add_jobs_table)"
