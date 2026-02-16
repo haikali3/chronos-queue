@@ -27,6 +27,14 @@ func New(repo storage.Repository, logger *zap.Logger) *Service {
 }
 
 func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, maxRetries int32, idempotencyKey string) (db.Job, error) {
+	if idempotencyKey != "" {
+		existing, err := s.repo.GetJobByIdempotencyKey(ctx, idempotencyKey)
+		if err != nil {
+			s.logger.Info("duplicate idempotency key, returning existing job", zap.String("job_id", existing.ID))
+			return existing, nil
+		}
+	}
+
 	params := db.CreateJobParams{
 		ID:         uuid.New().String(),
 		Type:       jobType,
