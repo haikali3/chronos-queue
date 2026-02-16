@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -46,4 +47,8 @@ func (r *JobRepository) UpdateJobStatus(ctx context.Context, arg db.UpdateJobSta
 	}
 
 	return r.queries.UpdateJobStatus(ctx, arg)
+}
+
+func (r *JobRepository) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey string) (db.Job, error) {
+	return r.queries.GetJobByIdempotencyKey(ctx, pgtype.Text{String: idempotencyKey, Valid: true})
 }
