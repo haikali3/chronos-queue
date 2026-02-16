@@ -15,11 +15,12 @@ check_postgres() {
 }
 
 usage() {
-  echo "Usage: ./bin/run <producer|worker> [args...]"
+  echo "Usage: ./bin/run <service> [args...]"
   echo ""
-  echo "Commands:"
-  echo "  producer   Run the producer service"
-  echo "  worker     Run the worker service"
+  echo "Services:"
+  for dir in cmd/*/; do
+    echo "  $(basename "$dir")"
+  done
   exit 1
 }
 
@@ -30,13 +31,11 @@ fi
 TARGET="$1"
 shift
 
-case "$TARGET" in
-  producer|worker)
-    check_postgres
-    echo "Running ${TARGET}..."
-    go run "./cmd/${TARGET}" "$@"
-    ;;
-  *)
-    usage
-    ;;
-esac
+if [ ! -d "./cmd/${TARGET}" ]; then
+  echo "Error: unknown service '${TARGET}'"
+  usage
+fi
+
+check_postgres
+echo "Running ${TARGET}..."
+go run "./cmd/${TARGET}" "$@"
