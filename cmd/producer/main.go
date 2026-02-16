@@ -62,13 +62,13 @@ func main() {
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.ProducerGRPCPort)
-	listerner, err := net.Listen("tcp", addr)
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatal("failed to listen", zap.String("addr", addr), zap.Error(err))
 	}
 
 	log.Info("starting producer gateway", zap.String("addr", addr), zap.String("queue", queueAddr))
-	if err := grpcServer.Serve(listerner); err != nil {
+	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatal("failed to start gRPC server", zap.Error(err))
 	}
 }
