@@ -39,6 +39,8 @@ func SetLogLevel(levelStr string) {
 		level.SetLevel(zapcore.WarnLevel)
 	case "error":
 		level.SetLevel(zapcore.ErrorLevel)
+	case "":
+		level.SetLevel(zapcore.InfoLevel)
 	default:
 		log.Warn("Invalid LOG_LEVEL, defaulting to INFO", zap.String("LOG_LEVEL", levelStr))
 		level.SetLevel(zapcore.InfoLevel)
