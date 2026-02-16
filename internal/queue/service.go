@@ -103,6 +103,9 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 			Time:  retry.NextRetryAt(retryCount),
 			Valid: true,
 		}
+	} else {
+		newStatus = job.StatusFailed
+		retryCount = current.RetryCount
 	}
 
 	err = s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
