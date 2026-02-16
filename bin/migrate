@@ -28,7 +28,7 @@ case "${1}" in
   create)
     if [ -z "${2}" ]; then
       echo "Error: migration name required"
-      echo "Usage: ./bin/migrate.sh create <name>"
+      echo "Usage: ./bin/migrate create <name>"
       exit 1
     fi
     goose -dir "$MIGRATIONS_DIR" -s create "${2}" sql
