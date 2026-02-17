@@ -15,7 +15,11 @@ check_postgres() {
 }
 
 usage() {
-  echo "Usage: ./bin/run <service> [args...]"
+  echo "Usage: ./bin/run [options] <service> [args...]"
+  echo ""
+  echo "Options:"
+  echo "  -d, --debug   Enable debug logs (sets LOG_LEVEL=debug)"
+  echo "  -h, --help    Show this help message"
   echo ""
   echo "Services:"
   echo "  queue      (q)"
@@ -24,9 +28,37 @@ usage() {
   echo ""
   echo "Examples:"
   echo "  bin/run queue"
+  echo "  bin/run --debug worker"
+  echo "  bin/run -d queue"
+  echo "  bin/run -d producer"
   echo "  bin/run q"
   exit 1
 }
+
+DEBUG_MODE=0
+
+while [ $# -gt 0 ]; do
+  case "${1}" in
+    -d|--debug)
+      DEBUG_MODE=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Error: unknown option '${1}'"
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 if [ -z "${1:-}" ]; then
   usage
@@ -45,6 +77,11 @@ esac
 if [ ! -d "./cmd/${TARGET}" ]; then
   echo "Error: unknown service '${TARGET}'"
   usage
+fi
+
+if [ "$DEBUG_MODE" -eq 1 ]; then
+  export LOG_LEVEL=debug
+  echo "Debug mode enabled (LOG_LEVEL=debug)"
 fi
 
 check_postgres
