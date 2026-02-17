@@ -5,8 +5,12 @@ import (
 	"chronos-queue/internal/config"
 	"chronos-queue/internal/logger"
 	"chronos-queue/internal/worker"
-	"context"
+	"chronos-queue/internal/workerpool"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -24,6 +28,7 @@ func main() {
 		log.Fatal("failed to load config", zap.Error(err))
 	}
 
+	// Connect to queue service via grpc
 	queueAddr := fmt.Sprintf("localhost:%d", cfg.QueueGRPCPort)
 	conn, err := grpc.NewClient(queueAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -34,8 +39,19 @@ func main() {
 	queueClient := pb.NewWorkerServiceClient(conn)
 	handler := &worker.SimulatedHandler{}
 	workerID := uuid.New().String()
-	w := worker.New(workerID, queueClient, handler, cfg.WorkerPollInterval)
+
+	pool := workerpool.NewPool(cfg.WorkerPoolSize, cfg.WorkerBufferSize, handler, queueClient)
 
 	log.Info("starting worker", zap.String("worker_id", workerID), zap.String("queue_addr", queueAddr))
-	w.Run(context.Background())
+	pool.Start()
+
+	dispatcher := workerpool.NewDispatcher(pool, queueClient, workerID, cfg.WorkerPollInterval)
+	go dispatcher.Start()
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	<-signalChan
+
+	log.Info("shutdown signal received, initiating graceful shutdown")
+	workerpool.GracefulShutdown(dispatcher, pool, 30*time.Second)
 }

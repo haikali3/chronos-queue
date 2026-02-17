@@ -18,5 +18,11 @@ func validate(cfg Config) error {
 	if cfg.WorkerPollInterval <= 0 {
 		return fmt.Errorf("WORKER_POLL_INTERVAL_MS must be greater than 0, got %d", cfg.WorkerPollInterval.Milliseconds())
 	}
+	if cfg.WorkerPoolSize <= 0 {
+		return fmt.Errorf("WORKER_POOL_SIZE must be greater than 0, got %d", cfg.WorkerPoolSize)
+	}
+	if cfg.WorkerBufferSize < 0 {
+		return fmt.Errorf("WORKER_BUFFER_SIZE cannot be negative, got %d", cfg.WorkerBufferSize)
+	}
 	return nil
 }

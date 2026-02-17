@@ -14,6 +14,8 @@ type Config struct {
 	QueueGRPCPort      int
 	ProducerGRPCPort   int
 	WorkerPollInterval time.Duration
+	WorkerPoolSize     int
+	WorkerBufferSize   int
 }
 
 func Load() (Config, error) {
@@ -40,6 +42,18 @@ func Load() (Config, error) {
 		return cfg, fmt.Errorf("invalid WORKER_POLL_INTERVAL_MS: %w", err)
 	}
 	cfg.WorkerPollInterval = time.Duration(pollMs) * time.Millisecond
+
+	poolSize, err := getEnvInt("WORKER_POOL_SIZE", 10)
+	if err != nil {
+		return cfg, fmt.Errorf("invalid WORKER_POOL_SIZE: %w", err)
+	}
+	cfg.WorkerPoolSize = poolSize
+
+	bufferSize, err := getEnvInt("WORKER_BUFFER_SIZE", 100)
+	if err != nil {
+		return cfg, fmt.Errorf("invalid WORKER_BUFFER_SIZE: %w", err)
+	}
+	cfg.WorkerBufferSize = bufferSize
 
 	if err := validate(cfg); err != nil {
 		return cfg, err

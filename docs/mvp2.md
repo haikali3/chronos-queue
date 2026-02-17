@@ -20,7 +20,7 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 1: Worker Pool
 
-1. `internal/workerpool/pool.go` — Worker pool with configurable size (N goroutines)
+<!-- 1. `internal/workerpool/pool.go` — Worker pool with configurable size (N goroutines)
    - Accept jobs via a channel
    - Each goroutine pulls from the channel and processes
    - Track active/idle worker counts
@@ -32,7 +32,7 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
    - Stop accepting new jobs
    - Wait for in-flight jobs to complete (with timeout)
    - Use `sync.WaitGroup` + `context.Context`
-4. Update `cmd/worker/main.go` to use the pool instead of a single poll loop
+4. Update `cmd/worker/main.go` to use the pool instead of a single poll loop -->
 
 ### Phase 2: Visibility Timeout
 
