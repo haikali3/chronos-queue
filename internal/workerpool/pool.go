@@ -11,6 +11,10 @@ import (
 	"go.uber.org/zap"
 )
 
+//  	Pool = the workers. It's a group of N goroutines sitting idle, waiting for jobs to show up on a channel. When a job arrives, one
+//   goroutine picks it up, runs the handler, reports the result back via gRPC, then goes back to waiting. It doesn't know or care where
+//   jobs come from.
+
 //   Worker goroutine logic:
 //   1. Increment idle
 //   2. select on ctx.Done() (exit) or <-jobs (got work)
