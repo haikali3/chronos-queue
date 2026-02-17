@@ -70,16 +70,21 @@ func (d *Dispatcher) poll(log *zap.Logger) {
 		return
 	}
 
-	for {
-		job, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Error("stream recv error", zap.String("workerID", d.workerID), zap.Error(err))
-			return
-		}
-		submitted := d.pool.Submit(Job{
+		for {
+			job, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				st, ok := status.FromError(err)
+				if ok && st.Code() == codes.NotFound {
+					// no jobs available; normal idle state
+					return
+				}
+				log.Error("stream recv error", zap.String("workerID", d.workerID), zap.Error(err))
+				return
+			}
+			submitted := d.pool.Submit(Job{
 			Proto:    job,
 			WorkerID: d.workerID,
 		})
