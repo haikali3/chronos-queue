@@ -63,12 +63,12 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 5: Multiple Workers & Horizontal Scaling
 
-14. Ensure multiple worker instances can run simultaneously
+<!-- 14. Ensure multiple worker instances can run simultaneously
     - Each worker registers with a unique worker ID
-    - `SELECT ... FOR UPDATE SKIP LOCKED` prevents double-claiming
+    - `SELECT ... FOR UPDATE SKIP LOCKED` prevents double-claiming -->
 15. Test with 3+ worker instances via docker-compose scale
-16. Add worker ID to job tracking (`claimed_by` column)
-17. `migrations/003_add_worker_tracking.sql`
+<!-- 16. Add worker ID to job tracking (`claimed_by` column)
+17. `migrations/003_add_worker_tracking.sql` -->
 
 ### Phase 6: Observability
 
