@@ -36,12 +36,12 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 2: Visibility Timeout
 
-5. `internal/queue/visibility.go` — Visibility timeout logic
+<!-- 5. `internal/queue/visibility.go` — Visibility timeout logic
    - When a job is claimed, set `visible_after = now + timeout`
    - Jobs past their visibility timeout become re-claimable
    - Prevents stuck jobs from blocking the queue
 6. `migrations/002_add_visibility_timeout.sql` — Add `visible_after` column to jobs table
-7. Update `ClaimJob` query: only claim jobs where `visible_after IS NULL OR visible_after <= now`
+7. Update `ClaimJob` query: only claim jobs where `visible_after IS NULL OR visible_after <= now` -->
 
 ### Phase 3: Heartbeat
 

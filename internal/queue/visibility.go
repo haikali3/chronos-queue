@@ -10,6 +10,6 @@ type VisibilityConfig struct {
 }
 
 func (s *Service) ExtendVisibility(ctx context.Context, jobID string) error {
-	deadline := time.Now().Add(s.visibilityCfg.timeout)
-	return s.repo.ExtendVisibility(ctx, jobID, deadline)
+	visibleAfter := time.Now().Add(s.visibilityCfg.timeout)
+	return s.repo.ExtendVisibility(ctx, jobID, visibleAfter)
 }
