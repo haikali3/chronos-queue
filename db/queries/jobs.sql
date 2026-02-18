@@ -15,15 +15,17 @@ SELECT * FROM jobs
 WHERE status = 'PENDING';
 
 -- name: ClaimJob :one
-UPDATE jobs SET status = 'IN_PROGRESS', updated_at = NOW()
-WHERE id = (
-  SELECT id FROM jobs
-  WHERE status = 'PENDING' OR (status = 'RETRYING' AND next_retry_at <= NOW())
-  ORDER BY created_at ASC
-  LIMIT 1
-  FOR UPDATE SKIP LOCKED
-)
-RETURNING *;
+UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW()
+  WHERE id = (
+    SELECT id FROM jobs
+    WHERE status = 'PENDING'
+      OR (status = 'RETRYING' AND next_retry_at <= NOW())
+      OR (status = 'IN_PROGRESS' AND visible_after IS NOT NULL AND visible_after <= NOW())
+    ORDER BY created_at ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+  )
+  RETURNING *;
 
 -- name: UpdateJobStatus :exec
 UPDATE jobs

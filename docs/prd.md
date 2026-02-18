@@ -1,11 +1,3 @@
-Perfect — **Chronos-Queue** is a *great* name.
-It signals **time, retries, backoff, scheduling, and correctness under failure**. Very distributed-systems-core 😌
-
-Below is the **rewritten `PRD.md`**, fully renamed and slightly tightened so it reads **clean, serious, and interview-ready**.
-
----
-
-```md
 # Product Requirements Document (PRD)
 ## Project: Chronos-Queue – Distributed Job Queue System
 
@@ -289,4 +281,3 @@ Worker Process
 - What breaks under extreme load
 ```
 
----

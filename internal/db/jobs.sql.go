@@ -12,19 +12,21 @@ import (
 )
 
 const claimJob = `-- name: ClaimJob :one
-UPDATE jobs SET status = 'IN_PROGRESS', updated_at = NOW()
-WHERE id = (
-  SELECT id FROM jobs
-  WHERE status = 'PENDING' OR (status = 'RETRYING' AND next_retry_at <= NOW())
-  ORDER BY created_at ASC
-  LIMIT 1
-  FOR UPDATE SKIP LOCKED
-)
-RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after
+UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW()
+  WHERE id = (
+    SELECT id FROM jobs
+    WHERE status = 'PENDING'
+      OR (status = 'RETRYING' AND next_retry_at <= NOW())
+      OR (status = 'IN_PROGRESS' AND visible_after IS NOT NULL AND visible_after <= NOW())
+    ORDER BY created_at ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+  )
+  RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after
 `
 
-func (q *Queries) ClaimJob(ctx context.Context) (Job, error) {
-	row := q.db.QueryRow(ctx, claimJob)
+func (q *Queries) ClaimJob(ctx context.Context, visibleAfter pgtype.Timestamptz) (Job, error) {
+	row := q.db.QueryRow(ctx, claimJob, visibleAfter)
 	var i Job
 	err := row.Scan(
 		&i.ID,
