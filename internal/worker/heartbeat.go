@@ -25,9 +25,9 @@ func NewHeartbeat(jobID string, interval time.Duration, queueService *queue.Serv
 
 func (h *Heartbeat) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
+	h.cancel = cancel
 
 	go func() {
-		h.cancel = cancel
 		defer close(h.done)
 		ticker := time.NewTicker(h.interval)
 		defer ticker.Stop()
