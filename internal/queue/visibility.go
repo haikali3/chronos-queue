@@ -5,13 +5,11 @@ import (
 	"time"
 )
 
-type Visibility struct {
+type VisibilityConfig struct {
 	timeout time.Duration
 }
 
 func (s *Service) ExtendVisibility(ctx context.Context, jobID string) error {
-	computeDeadline := time.Now().Add(s.visibilityCfg.timeout)
-
-	s.repo.ExtendVisibility(ctx, jobID, computeDeadline)
-	return
+	deadline := time.Now().Add(s.visibilityCfg.timeout)
+	return s.repo.ExtendVisibility(ctx, jobID, deadline)
 }

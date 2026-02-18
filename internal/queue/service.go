@@ -15,8 +15,9 @@ import (
 )
 
 type Service struct {
-	repo   storage.Repository
-	logger *zap.Logger
+	repo          storage.Repository
+	logger        *zap.Logger
+	visibilityCfg VisibilityConfig
 }
 
 func New(repo storage.Repository, logger *zap.Logger) *Service {
