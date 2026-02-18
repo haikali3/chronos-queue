@@ -1,9 +1,12 @@
 package worker
 
 import (
+	"chronos-queue/internal/logger"
 	"chronos-queue/internal/queue"
 	"context"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Heartbeat struct {
@@ -34,7 +37,9 @@ func (h *Heartbeat) Start() {
 		for {
 			select {
 			case <-ticker.C:
-				h.queueService.ExtendVisibility(ctx, h.jobID)
+				if err := h.queueService.ExtendVisibility(ctx, h.jobID); err != nil {
+					logger.Get().Warn("failed to extend job visibility", zap.String("job_id", h.jobID), zap.Error(err))
+				}
 			case <-ctx.Done():
 				return
 			}

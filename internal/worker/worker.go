@@ -64,7 +64,7 @@ func (w *Worker) poll(ctx context.Context) {
 		if err != nil {
 			st, ok := status.FromError(err)
 			if ok && st.Code() == codes.NotFound {
-				//no jobs available: normal
+				// no jobs available: normal
 				return
 			}
 			log.Error("stream error", zap.Error(err))
