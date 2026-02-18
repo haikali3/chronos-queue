@@ -20,4 +20,5 @@ type Job struct {
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
 	VisibleAfter   pgtype.Timestamptz
+	ClaimedBy      pgtype.Text
 }

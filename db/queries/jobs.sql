@@ -15,7 +15,7 @@ SELECT * FROM jobs
 WHERE status = 'PENDING';
 
 -- name: ClaimJob :one
-UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW()
+UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW(), claimed_by = $2
   WHERE id = (
     SELECT id FROM jobs
     WHERE status = 'PENDING'

@@ -31,8 +31,11 @@ func (r *JobRepository) ListPendingJobs(ctx context.Context) ([]db.Job, error) {
 	return r.queries.ListPendingJobs(ctx)
 }
 
-func (r *JobRepository) ClaimJob(ctx context.Context, visibleAfter time.Time) (db.Job, error) {
-	return r.queries.ClaimJob(ctx, pgtype.Timestamptz{Time: visibleAfter, Valid: true})
+func (r *JobRepository) ClaimJob(ctx context.Context, visibleAfter time.Time, claimedBy string) (db.Job, error) {
+	return r.queries.ClaimJob(ctx, db.ClaimJobParams{
+		VisibleAfter: pgtype.Timestamptz{Time: visibleAfter, Valid: true},
+		ClaimedBy:    pgtype.Text{String: claimedBy, Valid: true},
+	})
 }
 
 func (r *JobRepository) UpdateJobStatus(ctx context.Context, arg db.UpdateJobStatusParams) error {

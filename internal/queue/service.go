@@ -62,8 +62,8 @@ func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, m
 	return created, nil
 }
 
-func (s *Service) Dequeue(ctx context.Context) (db.Job, error) {
-	claimed, err := s.repo.ClaimJob(ctx, time.Now().Add(s.visibilityCfg.timeout))
+func (s *Service) Dequeue(ctx context.Context, workerID string) (db.Job, error) {
+	claimed, err := s.repo.ClaimJob(ctx, time.Now().Add(s.visibilityCfg.timeout), workerID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return db.Job{}, ErrJobNotFound

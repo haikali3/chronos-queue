@@ -53,7 +53,7 @@ func TestSubmitAndComplete(t *testing.T) {
 	}
 
 	// Worker dequeues it.
-	claimed, err := svc.Dequeue(ctx)
+	claimed, err := svc.Dequeue(ctx, "worker-1")
 	if err != nil {
 		t.Fatalf("failed to dequeue: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestFailAndRetry(t *testing.T) {
 	}
 
 	// Dequeue and fail it — should become RETRYING.
-	_, err = svc.Dequeue(ctx)
+	_, err = svc.Dequeue(ctx, "worker-1")
 	if err != nil {
 		t.Fatalf("failed to dequeue: %v", err)
 	}
@@ -141,7 +141,7 @@ func TestNoJobsAvailable(t *testing.T) {
 	ctx := context.Background()
 
 	// Dequeue with no jobs — should return ErrJobNotFound.
-	_, err := svc.Dequeue(ctx)
+	_, err := svc.Dequeue(ctx, "worker-1")
 	if err != queue.ErrJobNotFound {
 		t.Fatalf("expected ErrJobNotFound, got %v", err)
 	}

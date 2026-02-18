@@ -52,14 +52,14 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 4: Redis Integration
 
-10. `internal/storage/redis/lock.go` — Distributed locking
+<!-- 10. `internal/storage/redis/lock.go` — Distributed locking
     - Used for coordinating job claims across multiple queue service instances
     - Simple lock/unlock with TTL
 11. `internal/storage/redis/limiter.go` — Rate limiting
     - Token bucket or sliding window on job submission
     - Configurable per job type
 12. Update `docker-compose.yml` to include Redis
-13. Update `internal/config/config.go` with Redis connection config
+13. Update `internal/config/config.go` with Redis connection config -->
 
 ### Phase 5: Multiple Workers & Horizontal Scaling
 

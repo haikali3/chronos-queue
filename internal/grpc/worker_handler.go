@@ -21,7 +21,7 @@ func NewWorkerHandler(svc *queue.Service) *WorkerHandler {
 }
 
 func (h *WorkerHandler) PollJob(req *pb.WorkerRequest, stream grpc.ServerStreamingServer[pb.Job]) error {
-	claimed, err := h.svc.Dequeue(stream.Context())
+	claimed, err := h.svc.Dequeue(stream.Context(), req.GetWorkerId())
 	if err != nil {
 		if errors.Is(err, queue.ErrJobNotFound) {
 			return status.Error(codes.NotFound, "no jobs available")
