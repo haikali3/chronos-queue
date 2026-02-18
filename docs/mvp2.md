@@ -45,10 +45,10 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 3: Heartbeat
 
-8. `internal/worker/heartbeat.go` — Workers send periodic heartbeats for in-progress jobs
+<!-- 8. `internal/worker/heartbeat.go` — Workers send periodic heartbeats for in-progress jobs
    - Extends `visible_after` on each heartbeat
    - If worker crashes, visibility timeout expires naturally
-9. Add heartbeat RPC to `proto/worker.proto`: `Heartbeat(HeartbeatRequest) → Ack`
+9. Add heartbeat RPC to `proto/worker.proto`: `Heartbeat(HeartbeatRequest) → Ack` -->
 
 ### Phase 4: Redis Integration
 
