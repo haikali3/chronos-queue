@@ -5,6 +5,7 @@ import (
 	"chronos-queue/internal/job"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -53,9 +54,9 @@ func (r *JobRepository) GetJobByIdempotencyKey(ctx context.Context, idempotencyK
 	return r.queries.GetJobByIdempotencyKey(ctx, pgtype.Text{String: idempotencyKey, Valid: true})
 }
 
-func (r *JobRepository) ExtendVisibility(ctx context.Context, jobID string, visibleAfter pgtype.Timestamptz) error {
+func (r *JobRepository) ExtendVisibility(ctx context.Context, jobID string, visibleAfter time.Time) error {
 	return r.queries.UpdateJobVisibility(ctx, db.UpdateJobVisibilityParams{
 		ID:           jobID,
-		VisibleAfter: visibleAfter,
+		VisibleAfter: pgtype.Timestamptz{Time: visibleAfter, Valid: true},
 	})
 }
