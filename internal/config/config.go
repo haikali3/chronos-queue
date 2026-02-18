@@ -16,6 +16,7 @@ type Config struct {
 	WorkerPollInterval time.Duration
 	WorkerPoolSize     int
 	WorkerBufferSize   int
+	RedisURL           string
 }
 
 func Load() (Config, error) {
@@ -54,6 +55,7 @@ func Load() (Config, error) {
 		return cfg, fmt.Errorf("invalid WORKER_BUFFER_SIZE: %w", err)
 	}
 	cfg.WorkerBufferSize = bufferSize
+	cfg.RedisURL = os.Getenv("REDIS_URL")
 
 	if err := validate(cfg); err != nil {
 		return cfg, err

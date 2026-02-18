@@ -24,5 +24,8 @@ func validate(cfg Config) error {
 	if cfg.WorkerBufferSize < 0 {
 		return fmt.Errorf("WORKER_BUFFER_SIZE cannot be negative, got %d", cfg.WorkerBufferSize)
 	}
+	if cfg.RedisURL == "" {
+		return fmt.Errorf("REDIS_URL is required")
+	}
 	return nil
 }
