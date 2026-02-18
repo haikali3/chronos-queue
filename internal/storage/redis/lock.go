@@ -13,3 +13,11 @@ type Lock struct {
 	ttl    time.Duration
 }
 
+func NewLock(client *goredis.Client, key string, value string, ttl time.Duration) *Lock {
+	return &Lock{
+		client: client,
+		key:    key,
+		value:  value,
+		ttl:    ttl,
+	}
+}
