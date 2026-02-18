@@ -3,6 +3,7 @@ package storage
 import (
 	"chronos-queue/internal/db"
 	"context"
+	"time"
 )
 
 type Repository interface {
@@ -12,4 +13,5 @@ type Repository interface {
 	ClaimJob(ctx context.Context) (db.Job, error)
 	UpdateJobStatus(ctx context.Context, arg db.UpdateJobStatusParams) error
 	GetJobByIdempotencyKey(ctx context.Context, idempotencyKey string) (db.Job, error)
+	ExtendVisibility(ctx context.Context, jobID string, visibleAfter time.Time) error
 }

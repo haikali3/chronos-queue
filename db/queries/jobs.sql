@@ -31,5 +31,10 @@ SET status = $2, retry_count = $3, next_retry_at = $4, updated_at = NOW()
 WHERE id = $1;
 
 -- name: GetJobByIdempotencyKey :one
-SELECT id, type, payload, status, retry_count,max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+SELECT * FROM jobs
 WHERE idempotency_key = $1;
+
+-- name: UpdateJobVisibility :exec
+UPDATE jobs
+SET visible_after = $2, updated_at = NOW()
+WHERE id = $1;

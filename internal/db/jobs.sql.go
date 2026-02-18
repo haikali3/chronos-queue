@@ -20,7 +20,7 @@ WHERE id = (
   LIMIT 1
   FOR UPDATE SKIP LOCKED
 )
-RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at
+RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after
 `
 
 func (q *Queries) ClaimJob(ctx context.Context) (Job, error) {
@@ -37,6 +37,7 @@ func (q *Queries) ClaimJob(ctx context.Context) (Job, error) {
 		&i.NextRetryAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VisibleAfter,
 	)
 	return i, err
 }
@@ -47,7 +48,7 @@ INSERT INTO jobs (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, now(), now()
 )
-RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at
+RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after
 `
 
 type CreateJobParams struct {
@@ -80,12 +81,13 @@ func (q *Queries) CreateJob(ctx context.Context, arg CreateJobParams) (Job, erro
 		&i.NextRetryAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VisibleAfter,
 	)
 	return i, err
 }
 
 const getJob = `-- name: GetJob :one
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after FROM jobs
 WHERE id = $1
 `
 
@@ -103,12 +105,13 @@ func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
 		&i.NextRetryAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VisibleAfter,
 	)
 	return i, err
 }
 
 const getJobByIdempotencyKey = `-- name: GetJobByIdempotencyKey :one
-SELECT id, type, payload, status, retry_count,max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after FROM jobs
 WHERE idempotency_key = $1
 `
 
@@ -126,12 +129,13 @@ func (q *Queries) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey pgt
 		&i.NextRetryAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.VisibleAfter,
 	)
 	return i, err
 }
 
 const listPendingJobs = `-- name: ListPendingJobs :many
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after FROM jobs
 WHERE status = 'PENDING'
 `
 
@@ -155,6 +159,7 @@ func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
 			&i.NextRetryAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.VisibleAfter,
 		); err != nil {
 			return nil, err
 		}
@@ -186,5 +191,21 @@ func (q *Queries) UpdateJobStatus(ctx context.Context, arg UpdateJobStatusParams
 		arg.RetryCount,
 		arg.NextRetryAt,
 	)
+	return err
+}
+
+const updateJobVisibility = `-- name: UpdateJobVisibility :exec
+UPDATE jobs
+SET visible_after = $2, updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdateJobVisibilityParams struct {
+	ID           string
+	VisibleAfter pgtype.Timestamptz
+}
+
+func (q *Queries) UpdateJobVisibility(ctx context.Context, arg UpdateJobVisibilityParams) error {
+	_, err := q.db.Exec(ctx, updateJobVisibility, arg.ID, arg.VisibleAfter)
 	return err
 }

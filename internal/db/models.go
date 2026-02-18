@@ -19,4 +19,5 @@ type Job struct {
 	NextRetryAt    pgtype.Timestamptz
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
+	VisibleAfter   pgtype.Timestamptz
 }

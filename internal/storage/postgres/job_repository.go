@@ -52,3 +52,10 @@ func (r *JobRepository) UpdateJobStatus(ctx context.Context, arg db.UpdateJobSta
 func (r *JobRepository) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey string) (db.Job, error) {
 	return r.queries.GetJobByIdempotencyKey(ctx, pgtype.Text{String: idempotencyKey, Valid: true})
 }
+
+func (r *JobRepository) ExtendVisibility(ctx context.Context, jobID string, visibleAfter pgtype.Timestamptz) error {
+	return r.queries.UpdateJobVisibility(ctx, db.UpdateJobVisibilityParams{
+		ID:           jobID,
+		VisibleAfter: visibleAfter,
+	})
+}
