@@ -7,6 +7,7 @@ import (
 	"chronos-queue/internal/storage"
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -24,6 +25,10 @@ func New(repo storage.Repository, logger *zap.Logger) *Service {
 	return &Service{
 		repo:   repo,
 		logger: logger,
+		visibilityCfg: VisibilityConfig{
+			timeout: 30 * time.Second,
+			// In a real implementation, this could be configurable per job type or even per job
+		},
 	}
 }
 
@@ -58,7 +63,7 @@ func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, m
 }
 
 func (s *Service) Dequeue(ctx context.Context) (db.Job, error) {
-	claimed, err := s.repo.ClaimJob(ctx)
+	claimed, err := s.repo.ClaimJob(ctx, time.Now().Add(s.visibilityCfg.timeout))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return db.Job{}, ErrJobNotFound
