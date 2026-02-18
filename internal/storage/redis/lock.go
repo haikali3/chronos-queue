@@ -40,3 +40,15 @@ func (l *Lock) Acquire(ctx context.Context) (bool, error) {
 	}
 	return true, nil
 }
+
+func (l *Lock) Release(ctx context.Context) error {
+	script := `
+    if redis.call("GET", KEYS[1]) == ARGV[1] then
+      return redis.call("DEL", KEYS[1])
+    else
+      return 0
+    end
+  `
+	result := l.client.Eval(ctx, script, []string{l.key}, l.value)
+	return result.Err()
+}
