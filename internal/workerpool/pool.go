@@ -8,24 +8,27 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
-//  	Pool = the workers. It's a group of N goroutines sitting idle, waiting for jobs to show up on a channel. When a job arrives, one
-//   goroutine picks it up, runs the handler, reports the result back via gRPC, then goes back to waiting. It doesn't know or care where
-//   jobs come from.
+// Pool = the workers. It's a group of N goroutines sitting idle, waiting for jobs to show up on a channel. When a job arrives, one
+// goroutine picks it up, runs the handler, reports the result back via gRPC, then goes back to waiting. It doesn't know or care where
+// jobs come from.
 
-//   Worker goroutine logic:
-//   1. Increment idle
-//   2. select on ctx.Done() (exit) or <-jobs (got work)
-//   3. On job received: decrement idle, increment active
-//   4. Call handler.Handle(ctx, job.Proto)
-//   5. Call queue.ReportResult() with success/failure
-//   6. Decrement active, loop back
+// Worker goroutine logic:
+// 1. Increment idle
+// 2. select on ctx.Done() (exit) or <-jobs (got work)
+// 3. On job received: decrement idle, increment active
+// 4. Call handler.Handle(ctx, job.Proto)
+// 5. Call queue.ReportResult() with success/failure
+// 6. Decrement active, loop back
 
 type Job struct {
 	Proto    *pb.Job
 	WorkerID string
+	Ctx      context.Context
+	Span     trace.Span
 }
 
 type Pool struct {
@@ -115,10 +118,11 @@ func (p *Pool) worker(id int) {
 }
 
 func (p *Pool) process(job Job) {
+	defer job.Span.End()
 	log := logger.Get()
 	jobID := job.Proto.GetId()
 
-	err := p.handler.Handle(p.ctx, job.Proto)
+	err := p.handler.Handle(job.Ctx, job.Proto)
 
 	success := true
 	if err != nil {
@@ -126,7 +130,7 @@ func (p *Pool) process(job Job) {
 		success = false
 	}
 
-	_, reportErr := p.queue.ReportResult(p.ctx, &pb.JobResult{
+	_, reportErr := p.queue.ReportResult(job.Ctx, &pb.JobResult{
 		JobId:    jobID,
 		WorkerId: job.WorkerID,
 		Success:  success,
