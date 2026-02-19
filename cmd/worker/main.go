@@ -4,8 +4,10 @@ import (
 	"chronos-queue/gen/pb"
 	"chronos-queue/internal/config"
 	"chronos-queue/internal/logger"
+	"chronos-queue/internal/observability"
 	"chronos-queue/internal/worker"
 	"chronos-queue/internal/workerpool"
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -13,6 +15,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -28,9 +31,18 @@ func main() {
 		log.Fatal("failed to load config", zap.Error(err))
 	}
 
+	tp, err := observability.InitTracer(context.Background(), "chronos-worker")
+	if err != nil {
+		log.Fatal("failed to initialize tracer", zap.Error(err))
+	}
+	defer observability.ShutdownTracer(tp)
+
 	// Connect to queue service via grpc
 	queueAddr := fmt.Sprintf("localhost:%d", cfg.QueueGRPCPort)
-	conn, err := grpc.NewClient(queueAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(queueAddr,
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatal("failed to connect to queue service", zap.Error(err))
 	}

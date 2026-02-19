@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -56,7 +57,10 @@ func main() {
 	defer observability.ShutdownTracer(tp)
 
 	queueAddr := fmt.Sprintf("localhost:%d", cfg.QueueGRPCPort)
-	conn, err := grpc.NewClient(queueAddr, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
+	conn, err := grpc.NewClient(queueAddr,
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatal("failed to connect to queue service", zap.Error(err))
 	}
