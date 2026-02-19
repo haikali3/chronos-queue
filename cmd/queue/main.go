@@ -57,8 +57,8 @@ func main() {
 	}()
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
-	pb.RegisterProducerServiceServer(grpcServer, grpchandler.NewProducerHandler(svc))
-	pb.RegisterWorkerServiceServer(grpcServer, grpchandler.NewWorkerHandler(svc))
+	pb.RegisterProducerServiceServer(grpcServer, grpchandler.NewProducerHandler(svc, metrics))
+	pb.RegisterWorkerServiceServer(grpcServer, grpchandler.NewWorkerHandler(svc, metrics))
 
 	addr := fmt.Sprintf(":%d", cfg.QueueGRPCPort)
 	listener, err := net.Listen("tcp", addr)

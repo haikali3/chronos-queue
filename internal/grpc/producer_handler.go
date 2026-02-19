@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"chronos-queue/gen/pb"
+	"chronos-queue/internal/observability"
 	"chronos-queue/internal/queue"
 	"context"
 
@@ -11,11 +12,12 @@ import (
 
 type ProducerHandler struct {
 	pb.UnimplementedProducerServiceServer
-	svc *queue.Service // svc = service
+	svc     *queue.Service         // svc = service
+	metrics *observability.Metrics // prometheus,opentelemetry metrics and jaegar metrics
 }
 
-func NewProducerHandler(svc *queue.Service) *ProducerHandler {
-	return &ProducerHandler{svc: svc}
+func NewProducerHandler(svc *queue.Service, metrics *observability.Metrics) *ProducerHandler {
+	return &ProducerHandler{svc: svc, metrics: metrics}
 }
 
 func (h *ProducerHandler) SubmitJob(ctx context.Context, req *pb.JobRequest) (*pb.JobResponse, error) {
@@ -27,6 +29,7 @@ func (h *ProducerHandler) SubmitJob(ctx context.Context, req *pb.JobRequest) (*p
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to enqueue job: %v", err)
 	}
+	h.metrics.JobsSubmitted.Inc()
 
 	return &pb.JobResponse{
 		Id:     created.ID,

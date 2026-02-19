@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"chronos-queue/gen/pb"
+	"chronos-queue/internal/observability"
 	"chronos-queue/internal/queue"
 	"context"
 	"errors"
@@ -13,11 +14,12 @@ import (
 
 type WorkerHandler struct {
 	pb.UnimplementedWorkerServiceServer
-	svc *queue.Service
+	svc     *queue.Service
+	metrics *observability.Metrics // prometheus,opentelemetry metrics and jaegar metrics
 }
 
-func NewWorkerHandler(svc *queue.Service) *WorkerHandler {
-	return &WorkerHandler{svc: svc}
+func NewWorkerHandler(svc *queue.Service, metrics *observability.Metrics) *WorkerHandler {
+	return &WorkerHandler{svc: svc, metrics: metrics}
 }
 
 func (h *WorkerHandler) PollJob(req *pb.WorkerRequest, stream grpc.ServerStreamingServer[pb.Job]) error {
@@ -53,8 +55,10 @@ func (h *WorkerHandler) ReportResult(ctx context.Context, req *pb.JobResult) (*p
 	var err error
 	if req.GetSuccess() {
 		err = h.svc.Complete(ctx, req.GetJobId())
+		h.metrics.JobsCompleted.Inc()
 	} else {
 		err = h.svc.Fail(ctx, req.GetJobId())
+		h.metrics.JobsFailed.Inc()
 	}
 
 	if err != nil {
