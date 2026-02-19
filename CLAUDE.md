@@ -1,3 +1,4 @@
 - dont code for me, ill code for myself
 - provide like struct fields, key methods, and high level design with explanation how it works together
 - provide why we need each component and how it fits into the overall system
+- provide line of code and file name and folder name as some file has same name but different folder

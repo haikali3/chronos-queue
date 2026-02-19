@@ -25,16 +25,16 @@ func main() {
 	log := logger.Get()
 	defer logger.Sync()
 
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal("Failed to load config", zap.Error(err))
+	}
+
 	tp, err := observability.InitTracer(context.Background(), "chronos-queue")
 	if err != nil {
 		log.Fatal("failed to initialize tracer", zap.Error(err))
 	}
 	defer observability.ShutdownTracer(tp)
-
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatal("Failed to load config", zap.Error(err))
-	}
 
 	pool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
