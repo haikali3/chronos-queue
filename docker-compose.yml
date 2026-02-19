@@ -22,14 +22,14 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
   prometheus:
     image: prom/prometheus
     restart: always
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
   jaeger:
     image: jaegertracing/all-in-one
     restart: always
@@ -42,4 +42,3 @@ services:
 
 volumes:
   postgres_data:
-  prometheus_data:
