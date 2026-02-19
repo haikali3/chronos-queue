@@ -53,19 +53,27 @@ func (h *WorkerHandler) ReportResult(ctx context.Context, req *pb.JobResult) (*p
 	}
 
 	var err error
+
+	// 1. If success, mark job as complete
 	if req.GetSuccess() {
 		err = h.svc.Complete(ctx, req.GetJobId())
-		h.metrics.JobsCompleted.Inc()
 	} else {
 		err = h.svc.Fail(ctx, req.GetJobId())
-		h.metrics.JobsFailed.Inc()
 	}
 
+	// 2. check error
 	if err != nil {
 		if errors.Is(err, queue.ErrJobNotFound) {
 			return nil, status.Error(codes.NotFound, "job not found")
 		}
 		return nil, status.Errorf(codes.Internal, "failed to report job result: %v", err)
+	}
+
+	// 3. increment metric
+	if req.GetSuccess() {
+		h.metrics.JobsCompleted.Inc()
+	} else {
+		h.metrics.JobsFailed.Inc()
 	}
 
 	return &pb.Ack{Success: true}, nil
