@@ -4,11 +4,13 @@ import (
 	"chronos-queue/gen/pb"
 	"chronos-queue/internal/config"
 	"chronos-queue/internal/logger"
+	"chronos-queue/internal/observability"
 	"chronos-queue/internal/queue"
 	"chronos-queue/internal/storage/postgres"
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 
 	grpchandler "chronos-queue/internal/grpc"
 
@@ -35,6 +37,17 @@ func main() {
 
 	repo := postgres.NewJobRepository(pool)
 	svc := queue.New(repo, log)
+
+	metrics := observability.NewMetrics()
+	metricsAddr := fmt.Sprintf(":%d", cfg.MetricsPort)
+
+	go func() {
+		http.Handle("/metrics", metrics.Handler())
+		log.Info("Starting metrics server", zap.String("address", metricsAddr))
+		if err := http.ListenAndServe(metricsAddr, nil); err != nil {
+			log.Error("failed to start metrics server", zap.Error(err))
+		}
+	}()
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterProducerServiceServer(grpcServer, grpchandler.NewProducerHandler(svc))

@@ -17,6 +17,7 @@ type Config struct {
 	WorkerPoolSize     int
 	WorkerBufferSize   int
 	RedisURL           string
+	MetricsPort        int
 }
 
 func Load() (Config, error) {
@@ -56,6 +57,10 @@ func Load() (Config, error) {
 	}
 	cfg.WorkerBufferSize = bufferSize
 	cfg.RedisURL = os.Getenv("REDIS_URL")
+	cfg.MetricsPort, err = getEnvInt("METRICS_PORT", 9090)
+	if err != nil {
+		return cfg, fmt.Errorf("invalid METRICS_PORT: %w", err)
+	}
 
 	if err := validate(cfg); err != nil {
 		return cfg, err
