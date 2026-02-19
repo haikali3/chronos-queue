@@ -147,6 +147,9 @@ func (s *Service) Complete(ctx context.Context, jobID string) error {
 func (s *Service) Fail(ctx context.Context, jobID string) error {
 	ctx, span := tracer.Start(ctx, "Service.Fail")
 	defer span.End()
+	span.SetAttributes(
+		attribute.String("job_id", jobID),
+	)
 	requestID, _ := requestid.FromContext(ctx)
 	current, err := s.repo.GetJob(ctx, jobID)
 	if errors.Is(err, pgx.ErrNoRows) {
