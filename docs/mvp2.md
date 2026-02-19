@@ -72,7 +72,7 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 6: Observability
 
-18. `internal/observability/logger.go` — Structured logging with zerolog
+<!-- 18. `internal/logger/logger.go` — Structured logging with zerolog
     - Request IDs
     - Job IDs in all log lines
     - Log levels: debug, info, warn, error
@@ -84,7 +84,7 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
     - `chronos_queue_depth` (gauge)
     - `chronos_job_duration_seconds` (histogram)
     - `chronos_worker_pool_active` (gauge)
-    - `chronos_worker_pool_idle` (gauge)
+    - `chronos_worker_pool_idle` (gauge) -->
 20. `internal/observability/tracing.go` — OpenTelemetry tracing
     - Trace spans: job submission → queue → worker execution
     - Propagate trace context through gRPC metadata

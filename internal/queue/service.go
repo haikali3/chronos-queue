@@ -3,6 +3,7 @@ package queue
 import (
 	"chronos-queue/internal/db"
 	"chronos-queue/internal/job"
+	"chronos-queue/internal/requestid"
 	"chronos-queue/internal/retry"
 	"chronos-queue/internal/storage"
 	"context"
@@ -33,6 +34,7 @@ func New(repo storage.Repository, logger *zap.Logger) *Service {
 }
 
 func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, maxRetries int32, idempotencyKey string) (db.Job, error) {
+	requestID, _ := requestid.FromContext(ctx)
 	if idempotencyKey != "" {
 		existing, err := s.repo.GetJobByIdempotencyKey(ctx, idempotencyKey)
 		if err == nil {
@@ -55,27 +57,29 @@ func (s *Service) Enqueue(ctx context.Context, jobType string, payload []byte, m
 
 	created, err := s.repo.CreateJob(ctx, params)
 	if err != nil {
-		s.logger.Error("Failed to enqueue job", zap.Error(err))
+		s.logger.Error("Failed to enqueue job", zap.String("request_id", requestID), zap.Error(err))
 		return db.Job{}, err
 	}
-	s.logger.Info("Enqueued job", zap.String("job_id", created.ID), zap.String("type", created.Type))
+	s.logger.Info("Enqueued job", zap.String("request_id", requestID), zap.String("job_id", created.ID), zap.String("type", created.Type))
 	return created, nil
 }
 
 func (s *Service) Dequeue(ctx context.Context, workerID string) (db.Job, error) {
+	requestID, _ := requestid.FromContext(ctx)
 	claimed, err := s.repo.ClaimJob(ctx, time.Now().Add(s.visibilityCfg.timeout), workerID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return db.Job{}, ErrJobNotFound
 		}
-		s.logger.Error("Failed to dequeue job", zap.Error(err))
+		s.logger.Error("Failed to dequeue job", zap.String("request_id", requestID), zap.Error(err))
 		return db.Job{}, err
 	}
-	s.logger.Info("Dequeued job", zap.String("job_id", claimed.ID), zap.String("type", claimed.Type))
+	s.logger.Info("Dequeued job", zap.String("request_id", requestID), zap.String("job_id", claimed.ID), zap.String("type", claimed.Type))
 	return claimed, nil
 }
 
 func (s *Service) Complete(ctx context.Context, jobID string) error {
+	requestID, _ := requestid.FromContext(ctx)
 	_, err := s.repo.GetJob(ctx, jobID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -89,20 +93,21 @@ func (s *Service) Complete(ctx context.Context, jobID string) error {
 		Status: string(job.StatusCompleted),
 	})
 	if err != nil {
-		s.logger.Error("Failed to complete job", zap.String("job_id", jobID), zap.Error(err))
+		s.logger.Error("Failed to complete job", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
 		return err
 	}
-	s.logger.Info("Completed job", zap.String("job_id", jobID))
+	s.logger.Info("Completed job", zap.String("request_id", requestID), zap.String("job_id", jobID))
 	return nil
 }
 
 func (s *Service) Fail(ctx context.Context, jobID string) error {
+	requestID, _ := requestid.FromContext(ctx)
 	current, err := s.repo.GetJob(ctx, jobID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrJobNotFound
 	}
 	if err != nil {
-		s.logger.Error("Failed to get job for failure", zap.String("job_id", jobID), zap.Error(err))
+		s.logger.Error("Failed to get job for failure", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
 		return err
 	}
 
@@ -130,9 +135,9 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 	})
 
 	if err != nil {
-		s.logger.Error("Failed to update job status to failed/retrying", zap.String("job_id", jobID), zap.Error(err))
+		s.logger.Error("Failed to update job status to failed/retrying", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
 		return err
 	}
-	s.logger.Info("Updated job status to failed/retrying", zap.String("job_id", jobID), zap.String("new_status", string(newStatus)))
+	s.logger.Info("Updated job status to failed/retrying", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.String("new_status", string(newStatus)))
 	return nil
 }
