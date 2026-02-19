@@ -57,7 +57,7 @@ func Load() (Config, error) {
 	}
 	cfg.WorkerBufferSize = bufferSize
 	cfg.RedisURL = os.Getenv("REDIS_URL")
-	cfg.MetricsPort, err = getEnvInt("METRICS_PORT", 9090)
+	cfg.MetricsPort, err = getEnvInt("METRICS_PORT", 9091)
 	if err != nil {
 		return cfg, fmt.Errorf("invalid METRICS_PORT: %w", err)
 	}
