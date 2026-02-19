@@ -1,15 +1,12 @@
 package grpc
 
 import (
+	"chronos-queue/internal/requestid"
 	"context"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 )
-
-type contextKey string
-
-const requestIDKey contextKey = "requestID"
 
 type wrappedStream struct {
 	grpc.ServerStream
@@ -25,7 +22,7 @@ func RequestIDInterceptor() grpc.UnaryServerInterceptor {
 	) (any, error) {
 
 		requestID := uuid.NewString()
-		ctx = context.WithValue(ctx, requestIDKey, requestID)
+		ctx = requestid.WithRequestID(ctx, requestID)
 
 		return handler(ctx, req)
 	}
@@ -37,12 +34,7 @@ func (w *wrappedStream) Context() context.Context {
 
 func StreamRequestIDInterceptor(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	requestID := uuid.NewString()
+	ctx := requestid.WithRequestID(ss.Context(), requestID)
 
-	ctx := context.WithValue(ss.Context(), requestIDKey, requestID)
 	return handler(srv, &wrappedStream{ServerStream: ss, ctx: ctx})
-}
-
-func RequestIDFromContext(ctx context.Context) (string, bool) {
-	requestID, ok := ctx.Value(requestIDKey).(string)
-	return requestID, ok
 }
