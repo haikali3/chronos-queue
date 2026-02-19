@@ -7,6 +7,9 @@ import (
 	"io"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,6 +18,8 @@ import (
 // Dispatcher = the feeder. It's a single goroutine that polls the queue service on a timer ("any jobs available?"), and when it gets
 // one, it drops it into the pool's channel. If the channel is full (all workers are busy and the buffer is packed), it stops polling
 // until there's room.
+
+var tracer = otel.Tracer("chronos-workerpool")
 
 type Dispatcher struct {
 	pool         *Pool
@@ -38,6 +43,7 @@ func NewDispatcher(pool *Pool, queue pb.WorkerServiceClient, workerID string, po
 }
 
 func (d *Dispatcher) Start() {
+
 	log := logger.Get()
 	log.Info("dispatcher started", zap.String("workerID", d.workerID))
 	ticker := time.NewTicker(d.pollInterval)
@@ -70,25 +76,35 @@ func (d *Dispatcher) poll(log *zap.Logger) {
 		return
 	}
 
-		for {
-			job, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				st, ok := status.FromError(err)
-				if ok && st.Code() == codes.NotFound {
-					// no jobs available; normal idle state
-					return
-				}
-				log.Error("stream recv error", zap.String("workerID", d.workerID), zap.Error(err))
+	for {
+		job, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			st, ok := status.FromError(err)
+			if ok && st.Code() == codes.NotFound {
+				// no jobs available; normal idle state
 				return
 			}
-			submitted := d.pool.Submit(Job{
+			log.Error("stream recv error", zap.String("workerID", d.workerID), zap.Error(err))
+			return
+		}
+
+		jobCtx, jobSpan := tracer.Start(d.ctx, "Workerpool.ProcessJob",
+			trace.WithAttributes(
+				attribute.String("job_id", job.Id),
+				attribute.String("worker_id", d.workerID),
+			))
+
+		submitted := d.pool.Submit(Job{
 			Proto:    job,
 			WorkerID: d.workerID,
+			Ctx:      jobCtx,
+			Span:     jobSpan,
 		})
 		if !submitted {
+			jobSpan.End()
 			log.Warn("job received but pool is full, dropping job", zap.String("workerID", d.workerID), zap.String("jobID", job.Id))
 			return
 		}
