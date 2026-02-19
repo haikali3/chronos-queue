@@ -15,6 +15,7 @@ import (
 	grpchandler "chronos-queue/internal/grpc"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -23,6 +24,12 @@ func main() {
 	logger.Init()
 	log := logger.Get()
 	defer logger.Sync()
+
+	tp, err := observability.InitTracer(context.Background(), "chronos-queue")
+	if err != nil {
+		log.Fatal("failed to initialize tracer", zap.Error(err))
+	}
+	defer observability.ShutdownTracer(tp)
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -49,7 +56,7 @@ func main() {
 		}
 	}()
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 	pb.RegisterProducerServiceServer(grpcServer, grpchandler.NewProducerHandler(svc))
 	pb.RegisterWorkerServiceServer(grpcServer, grpchandler.NewWorkerHandler(svc))
 

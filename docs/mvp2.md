@@ -88,8 +88,8 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 20. `internal/observability/tracing.go` — OpenTelemetry tracing
     - Trace spans: job submission → queue → worker execution
     - Propagate trace context through gRPC metadata
-21. Expose `/metrics` endpoint on each service
-22. Add Prometheus + Grafana to `docker-compose.yml` (optional)
+<!-- 21. Expose `/metrics` endpoint on each service -->
+<!-- 22. Add Prometheus + Grafana to `docker-compose.yml` (optional) -->
 
 ### Phase 7: Backpressure & Flow Control
 
