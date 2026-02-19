@@ -85,9 +85,9 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
     - `chronos_job_duration_seconds` (histogram)
     - `chronos_worker_pool_active` (gauge)
     - `chronos_worker_pool_idle` (gauge) -->
-20. `internal/observability/tracing.go` — OpenTelemetry tracing
+<!-- 20. `internal/observability/tracing.go` — OpenTelemetry tracing
     - Trace spans: job submission → queue → worker execution
-    - Propagate trace context through gRPC metadata
+    - Propagate trace context through gRPC metadata -->
 <!-- 21. Expose `/metrics` endpoint on each service -->
 <!-- 22. Add Prometheus + Grafana to `docker-compose.yml` (optional) -->
 

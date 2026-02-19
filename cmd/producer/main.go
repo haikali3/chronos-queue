@@ -4,14 +4,15 @@ import (
 	"chronos-queue/gen/pb"
 	"chronos-queue/internal/config"
 	"chronos-queue/internal/logger"
+	"chronos-queue/internal/observability"
 	"context"
 	"fmt"
 	"net"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -48,15 +49,21 @@ func main() {
 		log.Fatal("failed to load config", zap.Error(err))
 	}
 
+	tp, err := observability.InitTracer(context.Background(), "chronos-producer")
+	if err != nil {
+		log.Fatal("failed to initialize tracer", zap.Error(err))
+	}
+	defer observability.ShutdownTracer(tp)
+
 	queueAddr := fmt.Sprintf("localhost:%d", cfg.QueueGRPCPort)
-	conn, err := grpc.NewClient(queueAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(queueAddr, grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	if err != nil {
 		log.Fatal("failed to connect to queue service", zap.Error(err))
 	}
 	defer func() { _ = conn.Close() }()
 
 	queueClient := pb.NewProducerServiceClient(conn)
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 	pb.RegisterProducerServiceServer(grpcServer, &producerGateway{
 		queue: queueClient,
 	})
