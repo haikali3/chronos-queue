@@ -25,7 +25,6 @@ type Dispatcher struct {
 	pool                *Pool
 	queue               pb.WorkerServiceClient
 	workerID            string
-	pollInterval        time.Duration
 	ctx                 context.Context
 	cancel              context.CancelFunc
 	basePollInterval    time.Duration
@@ -39,7 +38,6 @@ func NewDispatcher(pool *Pool, queue pb.WorkerServiceClient, workerID string, po
 		pool:                pool,
 		queue:               queue,
 		workerID:            workerID,
-		pollInterval:        pollInterval,
 		ctx:                 ctx,
 		cancel:              cancel,
 		basePollInterval:    pollInterval,
