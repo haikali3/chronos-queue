@@ -8,6 +8,7 @@ A distributed job queue built with Go, gRPC, and PostgreSQL.
 - [Docker](https://docs.docker.com/get-docker/)
 - [protoc](https://grpc.io/docs/protoc-installation/) (`brew install protobuf`)
 - [sqlc](https://docs.sqlc.dev/en/latest/overview/install.html) (`brew install sqlc`)
+- [k6](https://grafana.com/docs/k6/latest/) (`brew install k6`)
 
 ## Getting Started
 
@@ -112,3 +113,30 @@ Override with the `DATABASE_URL` environment variable:
 ```bash
 DATABASE_URL="postgres://user:pass@host:5432/dbname?sslmode=disable" ./bin/migrate up
 ```
+
+## Testing
+
+### Integration Tests
+
+Requires PostgreSQL running. Tests use the default database connection.
+
+```bash
+go test ./test/integration/ -v
+```
+
+Runs tests for:
+- `TestSubmitAndComplete` — submit, dequeue, and complete a job
+- `TestFailAndRetry` — fail a job and verify retry behavior
+- `TestIdempotency` — duplicate submissions return the same job
+- `TestNoJobsAvailable` — dequeue on empty queue
+- `TestMultiWorker` — submit 100 jobs, process with 3 concurrent workers, verify no duplicates
+
+### Load Test
+
+Requires the queue service running on `localhost:50051`.
+
+```bash
+k6 run test/load/k6.js
+```
+
+Ramps up to 10 virtual users submitting jobs via gRPC over 2 minutes. Measures throughput (req/s) and latency (p50/p90/p95).
