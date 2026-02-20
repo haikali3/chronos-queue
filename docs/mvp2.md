@@ -100,10 +100,10 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 8: Testing at Scale
 
-25. `test/integration/worker_test.go` — Multi-worker integration tests
+<!-- 25. `test/integration/worker_test.go` — Multi-worker integration tests
     - Submit 100 jobs, verify all completed with 3 workers
     - Verify no duplicate processing
-    - Verify metrics counts match
+    - Verify metrics counts match -->
 26. `test/load/k6.js` — Basic load test script
     - Ramp up job submission rate
     - Measure throughput and latency

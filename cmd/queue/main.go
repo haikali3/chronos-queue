@@ -15,6 +15,7 @@ import (
 	grpchandler "chronos-queue/internal/grpc"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -49,7 +50,7 @@ func main() {
 	metricsAddr := fmt.Sprintf(":%d", cfg.MetricsPort)
 
 	go func() {
-		http.Handle("/metrics", metrics.Handler())
+		http.Handle("/metrics", promhttp.Handler())
 		log.Info("Starting metrics server", zap.String("address", metricsAddr))
 		if err := http.ListenAndServe(metricsAddr, nil); err != nil {
 			log.Error("failed to start metrics server", zap.Error(err))
