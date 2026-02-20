@@ -23,6 +23,7 @@ services:
       - 3000:3000
     volumes:
       - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana_data:/var/lib/grafana
   prometheus:
     image: prom/prometheus
     restart: always
@@ -42,3 +43,5 @@ services:
 
 volumes:
   postgres_data:
+  grafana_data:
+

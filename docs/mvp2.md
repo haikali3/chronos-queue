@@ -104,9 +104,9 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
     - Submit 100 jobs, verify all completed with 3 workers
     - Verify no duplicate processing
     - Verify metrics counts match -->
-26. `test/load/k6.js` — Basic load test script
+<!-- 26. `test/load/k6.js` — Basic load test script
     - Ramp up job submission rate
-    - Measure throughput and latency
+    - Measure throughput and latency -->
 
 ---
 
