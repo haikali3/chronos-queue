@@ -12,17 +12,33 @@ import (
 )
 
 const claimJob = `-- name: ClaimJob :one
-UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW(), claimed_by = $2
-  WHERE id = (
-    SELECT id FROM jobs
-    WHERE status = 'PENDING'
-      OR (status = 'RETRYING' AND next_retry_at <= NOW())
-      OR (status = 'IN_PROGRESS' AND visible_after IS NOT NULL AND visible_after <= NOW())
-    ORDER BY created_at ASC
+UPDATE
+  jobs
+SET
+  status = 'IN_PROGRESS',
+  visible_after = $1,
+  updated_at = NOW(),
+  claimed_by = $2
+WHERE
+  id =(
+    SELECT
+      id
+    FROM
+      jobs
+    WHERE
+      status = 'PENDING'
+      OR (status = 'RETRYING'
+        AND next_retry_at <= NOW())
+      OR (status = 'IN_PROGRESS'
+        AND visible_after IS NOT NULL
+        AND visible_after <= NOW())
+    ORDER BY
+      created_at ASC
     LIMIT 1
-    FOR UPDATE SKIP LOCKED
-  )
-  RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+    FOR UPDATE
+      SKIP LOCKED)
+RETURNING
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
 `
 
 type ClaimJobParams struct {
@@ -52,13 +68,27 @@ func (q *Queries) ClaimJob(ctx context.Context, arg ClaimJobParams) (Job, error)
 	return i, err
 }
 
+const countDeadLetterJobs = `-- name: CountDeadLetterJobs :one
+SELECT
+  COUNT(*)
+FROM
+  jobs
+WHERE
+  status = 'FAILED'
+`
+
+func (q *Queries) CountDeadLetterJobs(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countDeadLetterJobs)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createJob = `-- name: CreateJob :one
-INSERT INTO jobs (
-  id, type, payload, status, max_retries, idempotency_key, created_at, updated_at
-) VALUES (
-  $1, $2, $3, $4, $5, $6, now(), now()
-)
-RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+INSERT INTO jobs(id, type, payload, status, max_retries, idempotency_key, created_at, updated_at)
+  VALUES ($1, $2, $3, $4, $5, $6, now(), now())
+RETURNING
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
 `
 
 type CreateJobParams struct {
@@ -100,8 +130,12 @@ func (q *Queries) CreateJob(ctx context.Context, arg CreateJobParams) (Job, erro
 }
 
 const getJob = `-- name: GetJob :one
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
-WHERE id = $1
+SELECT
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+FROM
+  jobs
+WHERE
+  id = $1
 `
 
 func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
@@ -127,8 +161,12 @@ func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
 }
 
 const getJobByIdempotencyKey = `-- name: GetJobByIdempotencyKey :one
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
-WHERE idempotency_key = $1
+SELECT
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+FROM
+  jobs
+WHERE
+  idempotency_key = $1
 `
 
 func (q *Queries) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey pgtype.Text) (Job, error) {
@@ -153,9 +191,65 @@ func (q *Queries) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey pgt
 	return i, err
 }
 
+const listDeadLetterJobs = `-- name: ListDeadLetterJobs :many
+SELECT
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+FROM
+  jobs
+WHERE
+  status = 'FAILED'
+ORDER BY
+  failed_at DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListDeadLetterJobsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListDeadLetterJobs(ctx context.Context, arg ListDeadLetterJobsParams) ([]Job, error) {
+	rows, err := q.db.Query(ctx, listDeadLetterJobs, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Job
+	for rows.Next() {
+		var i Job
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Payload,
+			&i.Status,
+			&i.RetryCount,
+			&i.MaxRetries,
+			&i.IdempotencyKey,
+			&i.NextRetryAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.VisibleAfter,
+			&i.ClaimedBy,
+			&i.DlqReason,
+			&i.FailedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPendingJobs = `-- name: ListPendingJobs :many
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
-WHERE status = 'PENDING'
+SELECT
+  id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
+FROM
+  jobs
+WHERE
+  status = 'PENDING'
 `
 
 func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
@@ -194,14 +288,21 @@ func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
 }
 
 const updateJobStatus = `-- name: UpdateJobStatus :exec
-UPDATE jobs
-SET status = $2,
+UPDATE
+  jobs
+SET
+  status = $2,
   retry_count = $3,
   next_retry_at = $4,
   dlq_reason = $5,
-  failed_at = CASE WHEN $2 = 'FAILED' THEN NOW() ELSE failed_at END,
+  failed_at = CASE WHEN $2 = 'FAILED' THEN
+    NOW()
+  ELSE
+    failed_at
+  END,
   updated_at = NOW()
-WHERE id = $1
+WHERE
+  id = $1
 `
 
 type UpdateJobStatusParams struct {
@@ -224,9 +325,13 @@ func (q *Queries) UpdateJobStatus(ctx context.Context, arg UpdateJobStatusParams
 }
 
 const updateJobVisibility = `-- name: UpdateJobVisibility :exec
-UPDATE jobs
-SET visible_after = $2, updated_at = NOW()
-WHERE id = $1
+UPDATE
+  jobs
+SET
+  visible_after = $2,
+  updated_at = NOW()
+WHERE
+  id = $1
 `
 
 type UpdateJobVisibilityParams struct {
