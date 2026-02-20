@@ -45,3 +45,23 @@ func (h *AdminHandler) ListDeadLetterJobs(ctx context.Context, req *pb.ListDLQRe
 		Total: int32(total),
 	}, nil
 }
+
+func (h *AdminHandler) GetJobDetails(ctx context.Context, req *pb.GetJobRequest) (*pb.GetJobResponse,
+	error) {
+	job, err := h.svc.GetJobDetails(ctx, req.JobId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJobResponse{
+		Job: &pb.Job{
+			Id:             job.ID,
+			Type:           job.Type,
+			Payload:        job.Payload,
+			Status:         pb.JobStatus(pb.JobStatus_value[job.Status]),
+			RetryCount:     job.RetryCount,
+			MaxRetries:     job.MaxRetries,
+			IdempotencyKey: job.IdempotencyKey.String,
+			DlqReason:      job.DlqReason.String,
+		},
+	}, nil
+}
