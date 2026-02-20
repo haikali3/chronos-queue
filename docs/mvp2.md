@@ -93,10 +93,10 @@ Go from a single-threaded worker to a **concurrent, multi-worker system** with p
 
 ### Phase 7: Backpressure & Flow Control
 
-23. `internal/workerpool/metrics.go` — Pool utilization metrics
+<!-- 23. `internal/workerpool/metrics.go` — Pool utilization metrics
     - Expose channel buffer fill percentage
     - Log warnings when pool is saturated
-24. Implement adaptive polling: slow down poll frequency when pool utilization is high
+24. Implement adaptive polling: slow down poll frequency when pool utilization is high -->
 
 ### Phase 8: Testing at Scale
 

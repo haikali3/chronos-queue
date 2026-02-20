@@ -78,9 +78,9 @@ No concurrency pools, no Redis, no observability yet. Just correctness.
 
 ### Phase 10: Docker Compose & Integration
 
-27. `docker-compose.yml` — PostgreSQL + all three services
+<!-- 27. `docker-compose.yml` — PostgreSQL + all three services
 28. `bin/` scripts — `bin/build`, `bin/run`, `bin/test` (consistent with existing `bin/` pattern)
-29. `test/integration/queue_test.go` — End-to-end test: submit job → verify it gets processed → verify final state
+29. `test/integration/queue_test.go` — End-to-end test: submit job → verify it gets processed → verify final state -->
 
 ---
 
