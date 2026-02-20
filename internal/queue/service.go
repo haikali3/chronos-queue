@@ -201,3 +201,21 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 	s.logger.Info("Updated job status to failed/retrying", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.String("new_status", string(newStatus)))
 	return nil
 }
+
+func (s *Service) ListDeadLetterJobs(ctx context.Context, limit, offset int32) ([]db.Job, int64, error) {
+	listDlqJobs, err := s.repo.ListDeadLetterJobs(ctx, db.ListDeadLetterJobsParams{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		s.logger.Error("Failed to list dead letter jobs", zap.Error(err))
+		return nil, 0, err
+	}
+	count, err := s.repo.CountDeadLetterJobs(ctx)
+
+	return listDlqJobs, count, err
+}
+
+func GetJobDetails() {
+
+}
