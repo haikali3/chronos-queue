@@ -110,6 +110,8 @@ type Job struct {
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// next_retry_at is when the next retry is eligible to run.
 	NextRetryAt   *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=next_retry_at,json=nextRetryAt,proto3" json:"next_retry_at,omitempty"`
+	DlqReason     string                 `protobuf:"bytes,11,opt,name=dlq_reason,json=dlqReason,proto3" json:"dlq_reason,omitempty"`
+	FailedAt      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=failed_at,json=failedAt,proto3" json:"failed_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,11 +216,25 @@ func (x *Job) GetNextRetryAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Job) GetDlqReason() string {
+	if x != nil {
+		return x.DlqReason
+	}
+	return ""
+}
+
+func (x *Job) GetFailedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FailedAt
+	}
+	return nil
+}
+
 var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\achronos\x1a\x1fgoogle/protobuf/timestamp.proto\"\x90\x03\n" +
+	"\fcommon.proto\x12\achronos\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe8\x03\n" +
 	"\x03Job\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x18\n" +
@@ -234,7 +250,10 @@ const file_common_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12>\n" +
 	"\rnext_retry_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\vnextRetryAt*\xa5\x01\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\vnextRetryAt\x12\x1d\n" +
+	"\n" +
+	"dlq_reason\x18\v \x01(\tR\tdlqReason\x127\n" +
+	"\tfailed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\bfailedAt*\xa5\x01\n" +
 	"\tJobStatus\x12\x1a\n" +
 	"\x16JOB_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12JOB_STATUS_PENDING\x10\x01\x12\x1a\n" +
@@ -267,11 +286,12 @@ var file_common_proto_depIdxs = []int32{
 	2, // 1: chronos.Job.created_at:type_name -> google.protobuf.Timestamp
 	2, // 2: chronos.Job.updated_at:type_name -> google.protobuf.Timestamp
 	2, // 3: chronos.Job.next_retry_at:type_name -> google.protobuf.Timestamp
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 4: chronos.Job.failed_at:type_name -> google.protobuf.Timestamp
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_common_proto_init() }

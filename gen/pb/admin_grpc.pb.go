@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdminService_ListJobs_FullMethodName = "/chronos.AdminService/ListJobs"
-	AdminService_RetryJob_FullMethodName = "/chronos.AdminService/RetryJob"
+	AdminService_ListJobs_FullMethodName           = "/chronos.AdminService/ListJobs"
+	AdminService_RetryJob_FullMethodName           = "/chronos.AdminService/RetryJob"
+	AdminService_ListDeadLetterJobs_FullMethodName = "/chronos.AdminService/ListDeadLetterJobs"
+	AdminService_GetJobDetails_FullMethodName      = "/chronos.AdminService/GetJobDetails"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -33,6 +35,8 @@ type AdminServiceClient interface {
 	ListJobs(ctx context.Context, in *ListJobsRequest, opts ...grpc.CallOption) (*ListJobsResponse, error)
 	// RetryJob allows administrators to trigger an immediate retry of a failed job.
 	RetryJob(ctx context.Context, in *RetryJobRequest, opts ...grpc.CallOption) (*RetryJobResponse, error)
+	ListDeadLetterJobs(ctx context.Context, in *ListDLQRequest, opts ...grpc.CallOption) (*ListDLQResponse, error)
+	GetJobDetails(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error)
 }
 
 type adminServiceClient struct {
@@ -63,6 +67,26 @@ func (c *adminServiceClient) RetryJob(ctx context.Context, in *RetryJobRequest, 
 	return out, nil
 }
 
+func (c *adminServiceClient) ListDeadLetterJobs(ctx context.Context, in *ListDLQRequest, opts ...grpc.CallOption) (*ListDLQResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListDLQResponse)
+	err := c.cc.Invoke(ctx, AdminService_ListDeadLetterJobs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetJobDetails(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetJobResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetJobDetails_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility.
@@ -73,6 +97,8 @@ type AdminServiceServer interface {
 	ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error)
 	// RetryJob allows administrators to trigger an immediate retry of a failed job.
 	RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error)
+	ListDeadLetterJobs(context.Context, *ListDLQRequest) (*ListDLQResponse, error)
+	GetJobDetails(context.Context, *GetJobRequest) (*GetJobResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -88,6 +114,12 @@ func (UnimplementedAdminServiceServer) ListJobs(context.Context, *ListJobsReques
 }
 func (UnimplementedAdminServiceServer) RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RetryJob not implemented")
+}
+func (UnimplementedAdminServiceServer) ListDeadLetterJobs(context.Context, *ListDLQRequest) (*ListDLQResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListDeadLetterJobs not implemented")
+}
+func (UnimplementedAdminServiceServer) GetJobDetails(context.Context, *GetJobRequest) (*GetJobResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetJobDetails not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 func (UnimplementedAdminServiceServer) testEmbeddedByValue()                      {}
@@ -146,6 +178,42 @@ func _AdminService_RetryJob_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_ListDeadLetterJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDLQRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).ListDeadLetterJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_ListDeadLetterJobs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).ListDeadLetterJobs(ctx, req.(*ListDLQRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_GetJobDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJobRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetJobDetails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetJobDetails_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetJobDetails(ctx, req.(*GetJobRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,6 +228,14 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RetryJob",
 			Handler:    _AdminService_RetryJob_Handler,
+		},
+		{
+			MethodName: "ListDeadLetterJobs",
+			Handler:    _AdminService_ListDeadLetterJobs_Handler,
+		},
+		{
+			MethodName: "GetJobDetails",
+			Handler:    _AdminService_GetJobDetails_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

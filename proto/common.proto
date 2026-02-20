@@ -43,4 +43,9 @@ message Job {
   google.protobuf.Timestamp updated_at = 9;
   // next_retry_at is when the next retry is eligible to run.
   google.protobuf.Timestamp next_retry_at = 10;
+
+  string dlq_reason = 11;
+
+  google.protobuf.Timestamp failed_at = 12;
+
 }

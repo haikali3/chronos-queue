@@ -201,6 +201,198 @@ func (x *RetryJobResponse) GetJob() *Job {
 	return nil
 }
 
+type ListDLQRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListDLQRequest) Reset() {
+	*x = ListDLQRequest{}
+	mi := &file_admin_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDLQRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDLQRequest) ProtoMessage() {}
+
+func (x *ListDLQRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDLQRequest.ProtoReflect.Descriptor instead.
+func (*ListDLQRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListDLQRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListDLQRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ListDLQResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Jobs          []*Job                 `protobuf:"bytes,1,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListDLQResponse) Reset() {
+	*x = ListDLQResponse{}
+	mi := &file_admin_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDLQResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDLQResponse) ProtoMessage() {}
+
+func (x *ListDLQResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDLQResponse.ProtoReflect.Descriptor instead.
+func (*ListDLQResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListDLQResponse) GetJobs() []*Job {
+	if x != nil {
+		return x.Jobs
+	}
+	return nil
+}
+
+func (x *ListDLQResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type GetJobRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetJobRequest) Reset() {
+	*x = GetJobRequest{}
+	mi := &file_admin_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetJobRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetJobRequest) ProtoMessage() {}
+
+func (x *GetJobRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetJobRequest.ProtoReflect.Descriptor instead.
+func (*GetJobRequest) Descriptor() ([]byte, []int) {
+	return file_admin_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetJobRequest) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+type GetJobResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Job           *Job                   `protobuf:"bytes,1,opt,name=job,proto3" json:"job,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetJobResponse) Reset() {
+	*x = GetJobResponse{}
+	mi := &file_admin_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetJobResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetJobResponse) ProtoMessage() {}
+
+func (x *GetJobResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetJobResponse.ProtoReflect.Descriptor instead.
+func (*GetJobResponse) Descriptor() ([]byte, []int) {
+	return file_admin_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetJobResponse) GetJob() *Job {
+	if x != nil {
+		return x.Job
+	}
+	return nil
+}
+
 var File_admin_proto protoreflect.FileDescriptor
 
 const file_admin_proto_rawDesc = "" +
@@ -213,10 +405,22 @@ const file_admin_proto_rawDesc = "" +
 	"\x0fRetryJobRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"2\n" +
 	"\x10RetryJobResponse\x12\x1e\n" +
-	"\x03job\x18\x01 \x01(\v2\f.chronos.JobR\x03job2\x90\x01\n" +
+	"\x03job\x18\x01 \x01(\v2\f.chronos.JobR\x03job\">\n" +
+	"\x0eListDLQRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\"I\n" +
+	"\x0fListDLQResponse\x12 \n" +
+	"\x04jobs\x18\x01 \x03(\v2\f.chronos.JobR\x04jobs\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"&\n" +
+	"\rGetJobRequest\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"0\n" +
+	"\x0eGetJobResponse\x12\x1e\n" +
+	"\x03job\x18\x01 \x01(\v2\f.chronos.JobR\x03job2\x9b\x02\n" +
 	"\fAdminService\x12?\n" +
 	"\bListJobs\x12\x18.chronos.ListJobsRequest\x1a\x19.chronos.ListJobsResponse\x12?\n" +
-	"\bRetryJob\x12\x18.chronos.RetryJobRequest\x1a\x19.chronos.RetryJobResponseB-Z+github.com/haikaltahar/chronos-queue/gen/pbb\x06proto3"
+	"\bRetryJob\x12\x18.chronos.RetryJobRequest\x1a\x19.chronos.RetryJobResponse\x12G\n" +
+	"\x12ListDeadLetterJobs\x12\x17.chronos.ListDLQRequest\x1a\x18.chronos.ListDLQResponse\x12@\n" +
+	"\rGetJobDetails\x12\x16.chronos.GetJobRequest\x1a\x17.chronos.GetJobResponseB-Z+github.com/haikaltahar/chronos-queue/gen/pbb\x06proto3"
 
 var (
 	file_admin_proto_rawDescOnce sync.Once
@@ -230,28 +434,38 @@ func file_admin_proto_rawDescGZIP() []byte {
 	return file_admin_proto_rawDescData
 }
 
-var file_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_admin_proto_goTypes = []any{
 	(*ListJobsRequest)(nil),  // 0: chronos.ListJobsRequest
 	(*ListJobsResponse)(nil), // 1: chronos.ListJobsResponse
 	(*RetryJobRequest)(nil),  // 2: chronos.RetryJobRequest
 	(*RetryJobResponse)(nil), // 3: chronos.RetryJobResponse
-	(JobStatus)(0),           // 4: chronos.JobStatus
-	(*Job)(nil),              // 5: chronos.Job
+	(*ListDLQRequest)(nil),   // 4: chronos.ListDLQRequest
+	(*ListDLQResponse)(nil),  // 5: chronos.ListDLQResponse
+	(*GetJobRequest)(nil),    // 6: chronos.GetJobRequest
+	(*GetJobResponse)(nil),   // 7: chronos.GetJobResponse
+	(JobStatus)(0),           // 8: chronos.JobStatus
+	(*Job)(nil),              // 9: chronos.Job
 }
 var file_admin_proto_depIdxs = []int32{
-	4, // 0: chronos.ListJobsRequest.status:type_name -> chronos.JobStatus
-	5, // 1: chronos.ListJobsResponse.jobs:type_name -> chronos.Job
-	5, // 2: chronos.RetryJobResponse.job:type_name -> chronos.Job
-	0, // 3: chronos.AdminService.ListJobs:input_type -> chronos.ListJobsRequest
-	2, // 4: chronos.AdminService.RetryJob:input_type -> chronos.RetryJobRequest
-	1, // 5: chronos.AdminService.ListJobs:output_type -> chronos.ListJobsResponse
-	3, // 6: chronos.AdminService.RetryJob:output_type -> chronos.RetryJobResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	8, // 0: chronos.ListJobsRequest.status:type_name -> chronos.JobStatus
+	9, // 1: chronos.ListJobsResponse.jobs:type_name -> chronos.Job
+	9, // 2: chronos.RetryJobResponse.job:type_name -> chronos.Job
+	9, // 3: chronos.ListDLQResponse.jobs:type_name -> chronos.Job
+	9, // 4: chronos.GetJobResponse.job:type_name -> chronos.Job
+	0, // 5: chronos.AdminService.ListJobs:input_type -> chronos.ListJobsRequest
+	2, // 6: chronos.AdminService.RetryJob:input_type -> chronos.RetryJobRequest
+	4, // 7: chronos.AdminService.ListDeadLetterJobs:input_type -> chronos.ListDLQRequest
+	6, // 8: chronos.AdminService.GetJobDetails:input_type -> chronos.GetJobRequest
+	1, // 9: chronos.AdminService.ListJobs:output_type -> chronos.ListJobsResponse
+	3, // 10: chronos.AdminService.RetryJob:output_type -> chronos.RetryJobResponse
+	5, // 11: chronos.AdminService.ListDeadLetterJobs:output_type -> chronos.ListDLQResponse
+	7, // 12: chronos.AdminService.GetJobDetails:output_type -> chronos.GetJobResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_admin_proto_init() }
@@ -266,7 +480,7 @@ func file_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_proto_rawDesc), len(file_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
