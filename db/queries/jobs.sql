@@ -29,7 +29,12 @@ UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW(), 
 
 -- name: UpdateJobStatus :exec
 UPDATE jobs
-SET status = $2, retry_count = $3, next_retry_at = $4, updated_at = NOW()
+SET status = $2,
+  retry_count = $3,
+  next_retry_at = $4,
+  dlq_reason = $5,
+  failed_at = CASE WHEN $2 = 'FAILED' THEN NOW() ELSE failed_at END,
+  updated_at = NOW()
 WHERE id = $1;
 
 -- name: GetJobByIdempotencyKey :one

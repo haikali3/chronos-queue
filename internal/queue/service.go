@@ -188,6 +188,7 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 		Status:      string(newStatus),
 		RetryCount:  retryCount,
 		NextRetryAt: nextRetry,
+		DlqReason:   pgtype.Text{String: "max retries exceeded", Valid: newStatus == job.StatusFailed},
 	})
 
 	if err != nil {

@@ -195,7 +195,12 @@ func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
 
 const updateJobStatus = `-- name: UpdateJobStatus :exec
 UPDATE jobs
-SET status = $2, retry_count = $3, next_retry_at = $4, updated_at = NOW()
+SET status = $2,
+  retry_count = $3,
+  next_retry_at = $4,
+  dlq_reason = $5,
+  failed_at = CASE WHEN $2 = 'FAILED' THEN NOW() ELSE failed_at END,
+  updated_at = NOW()
 WHERE id = $1
 `
 
@@ -204,6 +209,7 @@ type UpdateJobStatusParams struct {
 	Status      string
 	RetryCount  int32
 	NextRetryAt pgtype.Timestamptz
+	DlqReason   pgtype.Text
 }
 
 func (q *Queries) UpdateJobStatus(ctx context.Context, arg UpdateJobStatusParams) error {
@@ -212,6 +218,7 @@ func (q *Queries) UpdateJobStatus(ctx context.Context, arg UpdateJobStatusParams
 		arg.Status,
 		arg.RetryCount,
 		arg.NextRetryAt,
+		arg.DlqReason,
 	)
 	return err
 }
