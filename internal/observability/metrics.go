@@ -1,10 +1,7 @@
 package observability
 
 import (
-	"net/http"
-
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Metrics struct {
@@ -65,8 +62,4 @@ func NewMetrics() *Metrics {
 		m.WorkerPoolIdle,
 	)
 	return m
-}
-
-func (m *Metrics) Handler() http.Handler {
-	return promhttp.Handler()
 }

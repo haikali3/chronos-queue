@@ -22,23 +22,29 @@ import (
 var tracer = otel.Tracer("chronos-workerpool")
 
 type Dispatcher struct {
-	pool         *Pool
-	queue        pb.WorkerServiceClient
-	workerID     string
-	pollInterval time.Duration
-	ctx          context.Context
-	cancel       context.CancelFunc
+	pool                *Pool
+	queue               pb.WorkerServiceClient
+	workerID            string
+	pollInterval        time.Duration
+	ctx                 context.Context
+	cancel              context.CancelFunc
+	basePollInterval    time.Duration
+	maxPollInterval     time.Duration
+	saturationThreshold float64
 }
 
 func NewDispatcher(pool *Pool, queue pb.WorkerServiceClient, workerID string, pollInterval time.Duration) *Dispatcher {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Dispatcher{
-		pool:         pool,
-		queue:        queue,
-		workerID:     workerID,
-		pollInterval: pollInterval,
-		ctx:          ctx,
-		cancel:       cancel,
+		pool:                pool,
+		queue:               queue,
+		workerID:            workerID,
+		pollInterval:        pollInterval,
+		ctx:                 ctx,
+		cancel:              cancel,
+		basePollInterval:    pollInterval,
+		maxPollInterval:     4 * time.Second,
+		saturationThreshold: 0.8,
 	}
 }
 
@@ -113,4 +119,19 @@ func (d *Dispatcher) poll(log *zap.Logger) {
 
 func (d *Dispatcher) Stop() {
 	d.cancel()
+}
+
+func (d *Dispatcher) adaptPollInterval() time.Duration {
+	utilization := d.pool.Utilization()
+	if utilization < d.saturationThreshold {
+		return d.basePollInterval
+	}
+	if utilization >= d.saturationThreshold {
+		// Linearly increase poll interval from base to max as utilization goes from saturationThreshold to 1.0
+		scale := (utilization - d.saturationThreshold) / (1.0 - d.saturationThreshold)
+		interval := d.basePollInterval + time.Duration(float64(d.maxPollInterval-d.basePollInterval)*scale)
+		return interval
+	}
+
+	return d.maxPollInterval
 }
