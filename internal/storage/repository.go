@@ -14,4 +14,6 @@ type Repository interface {
 	UpdateJobStatus(ctx context.Context, arg db.UpdateJobStatusParams) error
 	GetJobByIdempotencyKey(ctx context.Context, idempotencyKey string) (db.Job, error)
 	ExtendVisibility(ctx context.Context, jobID string, visibleAfter time.Time) error
+	ListDeadLetterJobs(ctx context.Context, arg db.ListDeadLetterJobsParams) ([]db.Job, error)
+	CountDeadLetterJobs(ctx context.Context) (int64, error)
 }

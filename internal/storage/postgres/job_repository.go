@@ -63,3 +63,11 @@ func (r *JobRepository) ExtendVisibility(ctx context.Context, jobID string, visi
 		VisibleAfter: pgtype.Timestamptz{Time: visibleAfter, Valid: true},
 	})
 }
+
+func (r *JobRepository) ListDeadLetterJobs(ctx context.Context, arg db.ListDeadLetterJobsParams) ([]db.Job, error) {
+	return r.queries.ListDeadLetterJobs(ctx, arg)
+}
+
+func (r *JobRepository) CountDeadLetterJobs(ctx context.Context) (int64, error) {
+	return r.queries.CountDeadLetterJobs(ctx)
+}
