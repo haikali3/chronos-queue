@@ -21,4 +21,6 @@ type Job struct {
 	UpdatedAt      pgtype.Timestamptz
 	VisibleAfter   pgtype.Timestamptz
 	ClaimedBy      pgtype.Text
+	DlqReason      pgtype.Text
+	FailedAt       pgtype.Timestamptz
 }

@@ -22,7 +22,7 @@ UPDATE jobs SET status = 'IN_PROGRESS', visible_after = $1, updated_at = NOW(), 
     LIMIT 1
     FOR UPDATE SKIP LOCKED
   )
-  RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by
+  RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
 `
 
 type ClaimJobParams struct {
@@ -46,6 +46,8 @@ func (q *Queries) ClaimJob(ctx context.Context, arg ClaimJobParams) (Job, error)
 		&i.UpdatedAt,
 		&i.VisibleAfter,
 		&i.ClaimedBy,
+		&i.DlqReason,
+		&i.FailedAt,
 	)
 	return i, err
 }
@@ -56,7 +58,7 @@ INSERT INTO jobs (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, now(), now()
 )
-RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by
+RETURNING id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at
 `
 
 type CreateJobParams struct {
@@ -91,12 +93,14 @@ func (q *Queries) CreateJob(ctx context.Context, arg CreateJobParams) (Job, erro
 		&i.UpdatedAt,
 		&i.VisibleAfter,
 		&i.ClaimedBy,
+		&i.DlqReason,
+		&i.FailedAt,
 	)
 	return i, err
 }
 
 const getJob = `-- name: GetJob :one
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
 WHERE id = $1
 `
 
@@ -116,12 +120,14 @@ func (q *Queries) GetJob(ctx context.Context, id string) (Job, error) {
 		&i.UpdatedAt,
 		&i.VisibleAfter,
 		&i.ClaimedBy,
+		&i.DlqReason,
+		&i.FailedAt,
 	)
 	return i, err
 }
 
 const getJobByIdempotencyKey = `-- name: GetJobByIdempotencyKey :one
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
 WHERE idempotency_key = $1
 `
 
@@ -141,12 +147,14 @@ func (q *Queries) GetJobByIdempotencyKey(ctx context.Context, idempotencyKey pgt
 		&i.UpdatedAt,
 		&i.VisibleAfter,
 		&i.ClaimedBy,
+		&i.DlqReason,
+		&i.FailedAt,
 	)
 	return i, err
 }
 
 const listPendingJobs = `-- name: ListPendingJobs :many
-SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by FROM jobs
+SELECT id, type, payload, status, retry_count, max_retries, idempotency_key, next_retry_at, created_at, updated_at, visible_after, claimed_by, dlq_reason, failed_at FROM jobs
 WHERE status = 'PENDING'
 `
 
@@ -172,6 +180,8 @@ func (q *Queries) ListPendingJobs(ctx context.Context) ([]Job, error) {
 			&i.UpdatedAt,
 			&i.VisibleAfter,
 			&i.ClaimedBy,
+			&i.DlqReason,
+			&i.FailedAt,
 		); err != nil {
 			return nil, err
 		}
