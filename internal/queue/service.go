@@ -216,6 +216,6 @@ func (s *Service) ListDeadLetterJobs(ctx context.Context, limit, offset int32) (
 	return listDlqJobs, count, err
 }
 
-func GetJobDetails() {
-
+func (s *Service) GetJobDetails(ctx context.Context, jobID string) (db.Job, error) {
+	return s.repo.GetJob(ctx, jobID)
 }
