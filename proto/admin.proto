@@ -13,8 +13,10 @@ service AdminService {
   // RetryJob allows administrators to trigger an immediate retry of a failed job.
   rpc RetryJob(RetryJobRequest) returns (RetryJobResponse);
 
+  // ListDeadLetterJobs allows administrators to retrieve jobs in the dead-letter queue.
   rpc ListDeadLetterJobs(ListDLQRequest) returns (ListDLQResponse);
 
+  // GetJobDetails allows administrators to retrieve detailed information about a specific job.
   rpc GetJobDetails(GetJobRequest) returns (GetJobResponse);
 }
 

@@ -45,3 +45,9 @@ WHERE idempotency_key = $1;
 UPDATE jobs
 SET visible_after = $2, updated_at = NOW()
 WHERE id = $1;
+
+-- name: ListDeadLetterJobs :many
+SELECT * FROM jobs
+WHERE status = 'FAILED'
+ORDER BY failed_at DESC
+LIMIT $1 OFFSET $2;

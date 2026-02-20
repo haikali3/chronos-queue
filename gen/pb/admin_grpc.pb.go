@@ -35,7 +35,9 @@ type AdminServiceClient interface {
 	ListJobs(ctx context.Context, in *ListJobsRequest, opts ...grpc.CallOption) (*ListJobsResponse, error)
 	// RetryJob allows administrators to trigger an immediate retry of a failed job.
 	RetryJob(ctx context.Context, in *RetryJobRequest, opts ...grpc.CallOption) (*RetryJobResponse, error)
+	// ListDeadLetterJobs allows administrators to retrieve jobs in the dead-letter queue.
 	ListDeadLetterJobs(ctx context.Context, in *ListDLQRequest, opts ...grpc.CallOption) (*ListDLQResponse, error)
+	// GetJobDetails allows administrators to retrieve detailed information about a specific job.
 	GetJobDetails(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error)
 }
 
@@ -97,7 +99,9 @@ type AdminServiceServer interface {
 	ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error)
 	// RetryJob allows administrators to trigger an immediate retry of a failed job.
 	RetryJob(context.Context, *RetryJobRequest) (*RetryJobResponse, error)
+	// ListDeadLetterJobs allows administrators to retrieve jobs in the dead-letter queue.
 	ListDeadLetterJobs(context.Context, *ListDLQRequest) (*ListDLQResponse, error)
+	// GetJobDetails allows administrators to retrieve detailed information about a specific job.
 	GetJobDetails(context.Context, *GetJobRequest) (*GetJobResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
