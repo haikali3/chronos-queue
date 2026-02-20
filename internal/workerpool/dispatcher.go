@@ -43,24 +43,30 @@ func NewDispatcher(pool *Pool, queue pb.WorkerServiceClient, workerID string, po
 		ctx:                 ctx,
 		cancel:              cancel,
 		basePollInterval:    pollInterval,
-		maxPollInterval:     4 * time.Second,
+		maxPollInterval:     4 * pollInterval,
 		saturationThreshold: 0.8,
 	}
 }
 
 func (d *Dispatcher) Start() {
-
 	log := logger.Get()
 	log.Info("dispatcher started", zap.String("workerID", d.workerID))
-	ticker := time.NewTicker(d.pollInterval)
-	defer ticker.Stop()
 
 	for {
+		interval := d.adaptPollInterval()
 		select {
 		case <-d.ctx.Done():
 			log.Info("dispatcher stopping", zap.String("workerID", d.workerID))
 			return
-		case <-ticker.C:
+		case <-time.After(interval):
+			if d.pool.IsSaturated(d.saturationThreshold) {
+
+				log.Warn("pool saturated, slowing poll rate",
+					zap.String("workerID", d.workerID),
+					zap.Float64("utilization", d.pool.Utilization()),
+					zap.Duration("nextPollIn", interval))
+			}
+
 			// Backpressure: dont poll if the channel is full
 			if len(d.pool.jobs) >= cap(d.pool.jobs) {
 				log.Debug("pool full, skipping poll", zap.String("workerID", d.workerID))

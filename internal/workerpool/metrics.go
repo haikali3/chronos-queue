@@ -23,6 +23,6 @@ func (p *Pool) BufferCap() int {
 	return cap(p.jobs)
 }
 
-func (p *Pool) IsSaturated() bool {
-	return p.Utilization() >= 0.9
+func (p *Pool) IsSaturated(threshold float64) bool {
+	return p.Utilization() >= threshold
 }
