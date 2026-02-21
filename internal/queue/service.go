@@ -223,7 +223,49 @@ func (s *Service) RetryJob(ctx context.Context, jobID string) (db.Job, error) {
 		return db.Job{}, ErrJobNotFound
 	}
 
-	return current, nil
+	// general error check after GetJob
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(otelcodes.Error, err.Error())
+
+		s.logger.Error("Failed to get job for retry", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
+		return db.Job{}, err
+	}
+	if current.Status != string(job.StatusFailed) {
+		err := errors.New("only failed jobs can be retried")
+		span.RecordError(err)
+		span.SetStatus(otelcodes.Error, err.Error())
+
+		s.logger.Error("Invalid job status for retry", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.String("current_status", current.Status))
+		return db.Job{}, err
+	}
+	err = s.repo.UpdateJobStatus(ctx, db.UpdateJobStatusParams{
+		ID:          jobID,
+		Status:      string(job.StatusPending),
+		RetryCount:  0,
+		NextRetryAt: pgtype.Timestamptz{Valid: false},
+		DlqReason:   pgtype.Text{Valid: false},
+	})
+
+	// error handling on update
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(otelcodes.Error, err.Error())
+
+		s.logger.Error("failed to update job status to pending for retry", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
+		return db.Job{}, err
+	}
+
+	updated, err := s.repo.GetJob(ctx, jobID)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(otelcodes.Error, err.Error())
+
+		s.logger.Error("Failed to get updated job after retry", zap.String("request_id", requestID), zap.String("job_id", jobID), zap.Error(err))
+		return db.Job{}, err
+	}
+
+	return updated, nil
 }
 
 func (s *Service) ListDeadLetterJobs(ctx context.Context, limit, offset int32) ([]db.Job, int64, error) {
