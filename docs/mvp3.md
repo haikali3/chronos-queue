@@ -20,13 +20,13 @@ Make Chronos-Queue **production-grade**: handle every edge case, secure service 
 
 ### Phase 1: Dead-Letter Queue (Admin API)
 
-1. `migrations/004_dead_letter_queue.sql` — Add `dlq_reason`, `failed_at` columns to jobs table (or separate DLQ table)
+<!-- 1. `migrations/004_dead_letter_queue.sql` — Add `dlq_reason`, `failed_at` columns to jobs table (or separate DLQ table)
 2. Update `internal/queue/service.go` — When a job exceeds `max_retries`, move to `FAILED` with DLQ metadata
 3. Implement Admin API RPCs in `proto/admin.proto`:
    - `ListDeadLetterJobs(ListDLQRequest) → ListDLQResponse` — paginated list of failed jobs
    - `RetryJob(RetryJobRequest) → RetryJobResponse` — requeue a DLQ job (reset retry count, set to PENDING)
    - `GetJobDetails(GetJobRequest) → JobDetailResponse` — full job details with retry history
-4. Wire Admin gRPC server (can run on the queue service or as a separate port)
+4. Wire Admin gRPC server (can run on the queue service or as a separate port) -->
 
 ### Phase 2: Leader Election
 
