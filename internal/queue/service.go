@@ -202,6 +202,30 @@ func (s *Service) Fail(ctx context.Context, jobID string) error {
 	return nil
 }
 
+func (s *Service) RetryJob(ctx context.Context, jobID string) (db.Job, error) {
+	ctx, span := tracer.Start(ctx, "Service.RetryJob")
+
+	// span/tracing setup
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("job_id", jobID),
+	)
+
+	// GetJob + ErrNoRows
+	requestID, _ := requestid.FromContext(ctx)
+	current, err := s.repo.GetJob(ctx, jobID)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		span.RecordError(err)
+		span.SetStatus(otelcodes.Error, "job not found")
+
+		s.logger.Error("Job not found for retry", zap.String("request_id", requestID), zap.String("job_id", jobID))
+		return db.Job{}, ErrJobNotFound
+	}
+
+	return current, nil
+}
+
 func (s *Service) ListDeadLetterJobs(ctx context.Context, limit, offset int32) ([]db.Job, int64, error) {
 	listDlqJobs, err := s.repo.ListDeadLetterJobs(ctx, db.ListDeadLetterJobsParams{
 		Limit:  limit,

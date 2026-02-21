@@ -25,6 +25,8 @@ func IsValidTransition(from, to JobStatus) bool {
 		return to == StatusCompleted || to == StatusRetrying
 	case StatusRetrying:
 		return to == StatusInProgress || to == StatusFailed
+	case StatusFailed:
+		return to == StatusPending
 	default:
 		return false
 	}
