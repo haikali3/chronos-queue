@@ -18,10 +18,18 @@ A distributed job queue built with Go, gRPC, and PostgreSQL.
 docker compose up -d
 ```
 
-This starts PostgreSQL on `localhost:5432` with:
+This starts all infrastructure services:
+
+**PostgreSQL** on `localhost:5432`
 - Username: `postgres`
 - Password: `postgres`
 - Database: `chronos`
+
+**Prometheus** on `localhost:9090` — scrapes metrics from the queue service at `host.docker.internal:9091/metrics`
+
+**Grafana** on `localhost:3000` — dashboards with Prometheus and Jaeger pre-configured as datasources (default login: `admin` / `admin`)
+
+**Jaeger** on `localhost:16686` — trace UI, receives OTel traces from all services via OTLP HTTP on port `4318`
 
 ### 2. Generate protobuf code
 
@@ -112,6 +120,52 @@ Override with the `DATABASE_URL` environment variable:
 
 ```bash
 DATABASE_URL="postgres://user:pass@host:5432/dbname?sslmode=disable" ./bin/migrate up
+```
+
+## Observability
+
+### Metrics (Prometheus + Grafana)
+
+The queue service exposes Prometheus metrics at `:9091/metrics`. Prometheus scrapes this every 60s.
+
+Open Grafana at `http://localhost:3000` → add a dashboard → query these metrics:
+
+| Metric | Type | Description |
+|---|---|---|
+| `chronos_jobs_submitted_total` | Counter | Jobs enqueued |
+| `chronos_jobs_completed_total` | Counter | Jobs successfully completed |
+| `chronos_jobs_failed_total` | Counter | Jobs that errored |
+| `chronos_jobs_retried_total` | Counter | Retry attempts |
+| `chronos_queue_depth` | Gauge | Current queue size |
+| `chronos_job_duration_seconds` | Histogram | Job processing latency |
+| `chronos_worker_pool_active` | Gauge | Busy workers |
+| `chronos_worker_pool_idle` | Gauge | Idle workers |
+
+### Traces (OTel + Jaeger)
+
+All three services (`chronos-producer`, `chronos-queue`, `chronos-worker`) send OTel traces to Jaeger via OTLP HTTP.
+
+Set the exporter endpoint before running any service:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+```
+
+Open the Jaeger UI at `http://localhost:16686` to search and inspect traces. gRPC calls are auto-instrumented — every `SubmitJob`, `DequeueJob`, `CompleteJob`, etc. creates a span automatically.
+
+### Logs (Zap)
+
+Structured logs are written to stdout.
+
+```bash
+# development — colored human-readable output (default)
+go run ./cmd/queue
+
+# production — JSON structured logs
+APP_ENV=production go run ./cmd/queue
+
+# override log level at runtime
+LOG_LEVEL=debug go run ./cmd/queue   # debug | info | warn | error
 ```
 
 ## Testing
